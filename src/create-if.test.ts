@@ -46,6 +46,9 @@ test('throw error when item name starts with separator', async () => {
   await expect(createIFF({ '/a.txt': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not start with separator: /a.txt"',
   );
+  await expect(createIFF({ '\\a.txt': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+    '"Item name must not start with separator: \\\\a.txt"',
+  );
   await expect(createIFF({ '/a': {} }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not start with separator: /a"',
   );
@@ -54,6 +57,9 @@ test('throw error when item name starts with separator', async () => {
 test('throw error when item name ends with separator', async () => {
   await expect(createIFF({ 'a.txt/': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not end with separator: a.txt/"',
+  );
+  await expect(createIFF({ 'a.txt\\': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+    '"Item name must not end with separator: a.txt\\\\"',
   );
   await expect(createIFF({ 'a/': {} }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not end with separator: a/"',

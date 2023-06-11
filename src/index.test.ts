@@ -57,7 +57,7 @@ describe('createIFF', () => {
     await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
   });
   test('rootDir', async () => {
-    const createIFF = initIFF({ rootDir: join(fixtureDir, 'a') });
+    const createIFF = initIFF({ rootDir: resolve(fixtureDir, 'a') });
     const iff = await createIFF({});
     expect(iff.rootDir).toBe(resolve(fixtureDir, 'a'));
   });
@@ -66,7 +66,7 @@ describe('createIFF', () => {
       'a.txt': 'a',
     });
     expect(iff.resolve('a.txt')).toBe(resolve(fixtureDir, 'a.txt'));
-    expect(iff.resolve('/a.txt')).toBe('/a.txt');
+    expect(iff.resolve('/a.txt')).toBe(resolve('/a.txt'));
     expect(iff.resolve('nonexistent-file.txt')).toBe(resolve(fixtureDir, 'nonexistent-file.txt'));
     expect(iff.resolve('')).toBe(fixtureDir);
   });
@@ -111,9 +111,10 @@ describe('createIFF', () => {
     expect(await readdir(iff.resolve('b'))).toStrictEqual(['a.txt', 'b.txt']);
   });
   test('maskRootDir', async () => {
+    const createIFF = initIFF({ rootDir: join(fixtureDir, 'a') });
     const iff = await createIFF({});
     expect(iff.maskRootDir(iff.resolve(''))).toBe('<iff.rootDir>');
-    expect(iff.maskRootDir(iff.resolve('a'))).toBe('<iff.rootDir>/a');
-    expect(iff.maskRootDir('/a/b/c')).toBe('/a/b/c');
+    expect(iff.maskRootDir(iff.resolve('a'))).toBe(join('<iff.rootDir>', 'a'));
+    expect(iff.maskRootDir(resolve('/a/b/c'))).toBe(resolve('/a/b/c'));
   });
 });

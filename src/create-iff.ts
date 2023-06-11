@@ -1,5 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join, sep } from 'node:path';
+import { dirname, join } from 'node:path';
+import { sep as sepForPosix } from 'node:path/posix';
+import { sep as sepForWin32 } from 'node:path/win32';
 
 export type FileType = string; // TODO: support `File` class
 
@@ -16,8 +18,10 @@ function isFile(item: DirectoryItem): item is FileType {
 
 export async function createIFF(items: Directory, baseDir: string): Promise<void> {
   for (const [name, item] of Object.entries(items)) {
-    if (name.startsWith(sep)) throw new Error(`Item name must not start with separator: ${name}`);
-    if (name.endsWith(sep)) throw new Error(`Item name must not end with separator: ${name}`);
+    if (name.startsWith(sepForPosix) || name.startsWith(sepForWin32))
+      throw new Error(`Item name must not start with separator: ${name}`);
+    if (name.endsWith(sepForPosix) || name.endsWith(sepForWin32))
+      throw new Error(`Item name must not end with separator: ${name}`);
     const path = join(baseDir, name);
     if (isFile(item)) {
       // `item` is file.
