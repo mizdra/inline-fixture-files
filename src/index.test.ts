@@ -12,7 +12,7 @@ describe('initIFF', () => {
   test('rootDir', async () => {
     const createIFF = initIFF({ rootDir: join(fixtureDir, 'a') });
     const iff = await createIFF({ 'a.txt': 'a' });
-    expect(iff.resolve('a.txt')).toBe(resolve(fixtureDir, 'a/a.txt'));
+    expect(iff.resolve('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
   });
   test('rmFixturesBeforeCreating', async () => {
     // rmFixturesBeforeCreating: true
@@ -40,8 +40,8 @@ describe('createIFF', () => {
         'a.txt': 'b-a',
       },
     });
-    expect(iff.resolve('a.txt')).toBe(resolve(fixtureDir, 'a.txt'));
-    expect(iff.resolve('b/a.txt')).toBe(resolve(fixtureDir, 'b/a.txt'));
+    expect(iff.resolve('a.txt')).toBe(join(fixtureDir, 'a.txt'));
+    expect(iff.resolve('b/a.txt')).toBe(join(fixtureDir, 'b/a.txt'));
     expect(await readFile(iff.resolve('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
     expect(await readFile(iff.resolve('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
 
@@ -57,17 +57,17 @@ describe('createIFF', () => {
     await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
   });
   test('rootDir', async () => {
-    const createIFF = initIFF({ rootDir: resolve(fixtureDir, 'a') });
+    const createIFF = initIFF({ rootDir: join(fixtureDir, 'a') });
     const iff = await createIFF({});
-    expect(iff.rootDir).toBe(resolve(fixtureDir, 'a'));
+    expect(iff.rootDir).toBe(join(fixtureDir, 'a'));
   });
   test('resolve', async () => {
     const iff = await createIFF({
       'a.txt': 'a',
     });
-    expect(iff.resolve('a.txt')).toBe(resolve(fixtureDir, 'a.txt'));
+    expect(iff.resolve('a.txt')).toBe(join(fixtureDir, 'a.txt'));
     expect(iff.resolve('/a.txt')).toBe(resolve('/a.txt'));
-    expect(iff.resolve('nonexistent-file.txt')).toBe(resolve(fixtureDir, 'nonexistent-file.txt'));
+    expect(iff.resolve('nonexistent-file.txt')).toBe(join(fixtureDir, 'nonexistent-file.txt'));
     expect(iff.resolve('')).toBe(fixtureDir);
   });
   test('rmFixtures', async () => {
