@@ -1,5 +1,7 @@
 import { readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { sep as sepForPosix } from 'node:path/posix';
+import { sep as sepForWin32 } from 'node:path/win32';
 import { Directory, createIFF } from './create-iff.js';
 
 export const DEFAULT_RM_FIXTURES_BEFORE_CREATING = true;
@@ -31,6 +33,8 @@ export function initIFFCreator({
 }: InitIFFCreatorOptions): IFFCreator {
   const resolvedRootDir = resolve(rootDir);
   function getRealPath(path: string): string {
+    if (path.startsWith(sepForPosix) || path.startsWith(sepForWin32))
+      throw new Error(`\`path\` must not start with separator: ${path}`);
     return resolve(rootDir, path);
   }
   async function rmRootDir(): Promise<void> {

@@ -66,7 +66,7 @@ describe('createIFF', () => {
       'a.txt': 'a',
     });
     expect(iff.resolve('a.txt')).toBe(join(fixtureDir, 'a.txt'));
-    expect(iff.resolve('/a.txt')).toBe(resolve('/a.txt'));
+    expect(() => iff.resolve('/a.txt')).toThrowErrorMatchingInlineSnapshot('"`path` must not start with separator: /a.txt"');
     expect(iff.resolve('nonexistent-file.txt')).toBe(join(fixtureDir, 'nonexistent-file.txt'));
     expect(iff.resolve('')).toBe(fixtureDir);
   });
