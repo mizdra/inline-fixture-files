@@ -1,7 +1,5 @@
 import { readdir, rm } from 'node:fs/promises';
-import { resolve } from 'node:path';
-import { sep as sepForPosix } from 'node:path/posix';
-import { sep as sepForWin32 } from 'node:path/win32';
+import { resolve, join } from 'node:path';
 import { Directory, createIFF } from './create-iff.js';
 
 export const DEFAULT_RM_FIXTURES_BEFORE_CREATING = true;
@@ -9,7 +7,8 @@ export const DEFAULT_RM_FIXTURES_BEFORE_CREATING = true;
 export type IFFCreatorResult = {
   /** The resolved `rootDir`. */
   rootDir: string;
-  resolve: (path: string) => string;
+  /** Join `rootDir` and `path`. */
+  join: (...paths: string[]) => string;
   rmRootDir: () => Promise<void>;
   rmFixtures: () => Promise<void>;
   addFixtures: (items: Directory) => Promise<void>;
@@ -32,10 +31,8 @@ export function initIFFCreator({
   rmFixturesBeforeCreating = DEFAULT_RM_FIXTURES_BEFORE_CREATING,
 }: InitIFFCreatorOptions): IFFCreator {
   const resolvedRootDir = resolve(rootDir);
-  function getRealPath(path: string): string {
-    if (path.startsWith(sepForPosix) || path.startsWith(sepForWin32))
-      throw new Error(`\`path\` must not start with separator: ${path}`);
-    return resolve(rootDir, path);
+  function getRealPath(...paths: string[]): string {
+    return join(rootDir, ...paths);
   }
   async function rmRootDir(): Promise<void> {
     await rm(resolvedRootDir, { recursive: true, force: true });
@@ -55,7 +52,7 @@ export function initIFFCreator({
     await createIFF(directory, rootDir);
     return {
       rootDir: resolvedRootDir,
-      resolve: getRealPath,
+      join: getRealPath,
       rmRootDir,
       rmFixtures,
       addFixtures,

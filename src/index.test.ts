@@ -12,7 +12,7 @@ describe('initIFF', () => {
   test('rootDir', async () => {
     const createIFF = initIFF({ rootDir: join(fixtureDir, 'a') });
     const iff = await createIFF({ 'a.txt': 'a' });
-    expect(iff.resolve('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
+    expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
   });
   test('rmFixturesBeforeCreating', async () => {
     // rmFixturesBeforeCreating: true
@@ -40,13 +40,13 @@ describe('createIFF', () => {
         'a.txt': 'b-a',
       },
     });
-    expect(iff.resolve('a.txt')).toBe(join(fixtureDir, 'a.txt'));
-    expect(iff.resolve('b/a.txt')).toBe(join(fixtureDir, 'b/a.txt'));
-    expect(await readFile(iff.resolve('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
-    expect(await readFile(iff.resolve('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+    expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
+    expect(iff.join('b/a.txt')).toBe(join(fixtureDir, 'b/a.txt'));
+    expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
+    expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
 
-    await writeFile(iff.resolve('c.txt'), 'c');
-    expect(await readFile(iff.resolve('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
+    await writeFile(iff.join('c.txt'), 'c');
+    expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
 
     await iff.rmFixtures();
 
@@ -61,14 +61,14 @@ describe('createIFF', () => {
     const iff = await createIFF({});
     expect(iff.rootDir).toBe(join(fixtureDir, 'a'));
   });
-  test('resolve', async () => {
+  test('join', async () => {
     const iff = await createIFF({
       'a.txt': 'a',
     });
-    expect(iff.resolve('a.txt')).toBe(join(fixtureDir, 'a.txt'));
-    expect(() => iff.resolve('/a.txt')).toThrowErrorMatchingInlineSnapshot('"`path` must not start with separator: /a.txt"');
-    expect(iff.resolve('nonexistent-file.txt')).toBe(join(fixtureDir, 'nonexistent-file.txt'));
-    expect(iff.resolve('')).toBe(fixtureDir);
+    expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
+    expect(iff.join('/a.txt')).toBe(join(fixtureDir, 'a.txt'));
+    expect(iff.join('nonexistent-file.txt')).toBe(join(fixtureDir, 'nonexistent-file.txt'));
+    expect(iff.join('')).toBe(fixtureDir);
   });
   test('rmFixtures', async () => {
     const iff = await createIFF({
@@ -100,7 +100,7 @@ describe('createIFF', () => {
       },
     });
     expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b']);
-    expect(await readdir(iff.resolve('b'))).toStrictEqual(['a.txt']);
+    expect(await readdir(iff.join('b'))).toStrictEqual(['a.txt']);
     await iff.addFixtures({
       'b': {
         'b.txt': 'b-b',
@@ -108,13 +108,13 @@ describe('createIFF', () => {
       'c.txt': 'c',
     });
     expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b', 'c.txt']);
-    expect(await readdir(iff.resolve('b'))).toStrictEqual(['a.txt', 'b.txt']);
+    expect(await readdir(iff.join('b'))).toStrictEqual(['a.txt', 'b.txt']);
   });
   test('maskRootDir', async () => {
     const createIFF = initIFF({ rootDir: join(fixtureDir, 'a') });
     const iff = await createIFF({});
-    expect(iff.maskRootDir(iff.resolve(''))).toBe('<iff.rootDir>');
-    expect(iff.maskRootDir(iff.resolve('a'))).toBe(join('<iff.rootDir>', 'a'));
+    expect(iff.maskRootDir(iff.join(''))).toBe('<iff.rootDir>');
+    expect(iff.maskRootDir(iff.join('a'))).toBe(join('<iff.rootDir>', 'a'));
     expect(iff.maskRootDir(resolve('/a/b/c'))).toBe(resolve('/a/b/c'));
   });
 });
