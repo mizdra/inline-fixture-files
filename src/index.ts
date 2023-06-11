@@ -31,7 +31,7 @@ export function initIFFCreator({
 }: InitIFFCreatorOptions): IFFCreator {
   const resolvedRootDir = resolve(rootDir);
   function getRealPath(path: string): string {
-    return resolve(resolvedRootDir, path);
+    return resolve(rootDir, path);
   }
   async function rmRootDir(): Promise<void> {
     await rm(resolvedRootDir, { recursive: true, force: true });
