@@ -1,10 +1,10 @@
 import { readdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { Directory, createIFF } from './create-iff.js';
+import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 
 export const DEFAULT_RM_FIXTURES_BEFORE_CREATING = true;
 
-export type IFFCreatorResult = {
+export type CreateIFFResult = {
   /** The resolved `rootDir`. */
   rootDir: string;
   /** Join `rootDir` and `path`. */
@@ -14,9 +14,9 @@ export type IFFCreatorResult = {
   addFixtures: (items: Directory) => Promise<void>;
   maskRootDir: (str: string) => string;
 };
-export type IFFCreator = (directory: Directory) => Promise<IFFCreatorResult>;
+export type IFFCreator = (directory: Directory) => Promise<CreateIFFResult>;
 
-export type InitIFFCreatorOptions = {
+export type CreateIFFOptions = {
   /** Root directory for fixtures. */
   rootDir: string;
   /**
@@ -26,11 +26,10 @@ export type InitIFFCreatorOptions = {
   rmFixturesBeforeCreating?: boolean;
 };
 
-export function initIFFCreator({
-  rootDir,
-  rmFixturesBeforeCreating = DEFAULT_RM_FIXTURES_BEFORE_CREATING,
-}: InitIFFCreatorOptions): IFFCreator {
+export async function createIFF(directory: Directory, options: CreateIFFOptions): Promise<CreateIFFResult> {
+  const { rootDir, rmFixturesBeforeCreating = DEFAULT_RM_FIXTURES_BEFORE_CREATING } = options;
   const resolvedRootDir = resolve(rootDir);
+
   function getRealPath(...paths: string[]): string {
     return join(rootDir, ...paths);
   }
@@ -42,21 +41,20 @@ export function initIFFCreator({
     await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
   }
   async function addFixtures(items: Directory): Promise<void> {
-    await createIFF(items, resolvedRootDir);
+    await createIFFImpl(items, resolvedRootDir);
   }
   function maskRootDir(str: string): string {
     return str.replaceAll(resolvedRootDir, '<iff.rootDir>');
   }
-  return async (directory: Directory) => {
-    if (rmFixturesBeforeCreating) await rmRootDir();
-    await createIFF(directory, rootDir);
-    return {
-      rootDir: resolvedRootDir,
-      join: getRealPath,
-      rmRootDir,
-      rmFixtures,
-      addFixtures,
-      maskRootDir,
-    };
+
+  if (rmFixturesBeforeCreating) await rmRootDir();
+  await createIFFImpl(directory, rootDir);
+  return {
+    rootDir: resolvedRootDir,
+    join: getRealPath,
+    rmRootDir,
+    rmFixtures,
+    addFixtures,
+    maskRootDir,
   };
 }
