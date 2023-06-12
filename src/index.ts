@@ -24,33 +24,39 @@ export type CreateIFFOptions = {
    * @default true
    */
   rmFixturesBeforeCreating?: boolean;
+  /**
+   * If `true`, `createIFF` does not write files.
+   * This option does not affect `CreateIFFResult#addFixtures`.
+   * @default false
+   */
+  noWrite?: boolean;
 };
 
 export async function createIFF(directory: Directory, options: CreateIFFOptions): Promise<CreateIFFResult> {
-  const { rootDir, rmFixturesBeforeCreating = DEFAULT_RM_FIXTURES_BEFORE_CREATING } = options;
-  const resolvedRootDir = resolve(rootDir);
+  const { rmFixturesBeforeCreating = DEFAULT_RM_FIXTURES_BEFORE_CREATING } = options;
+  const rootDir = resolve(options.rootDir); // normalize path
 
   function getRealPath(...paths: string[]): string {
     return join(rootDir, ...paths);
   }
   async function rmRootDir(): Promise<void> {
-    await rm(resolvedRootDir, { recursive: true, force: true });
+    await rm(rootDir, { recursive: true, force: true });
   }
   async function rmFixtures(): Promise<void> {
-    const files = await readdir(resolvedRootDir);
+    const files = await readdir(rootDir);
     await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
   }
   async function addFixtures(items: Directory): Promise<void> {
-    await createIFFImpl(items, resolvedRootDir);
+    await createIFFImpl(items, rootDir);
   }
   function maskRootDir(str: string): string {
-    return str.replaceAll(resolvedRootDir, '<iff.rootDir>');
+    return str.replaceAll(rootDir, '<iff.rootDir>');
   }
 
   if (rmFixturesBeforeCreating) await rmRootDir();
   await createIFFImpl(directory, rootDir);
   return {
-    rootDir: resolvedRootDir,
+    rootDir,
     join: getRealPath,
     rmRootDir,
     rmFixtures,
