@@ -1,5 +1,5 @@
 import { readFile, readdir, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { fixtureDir } from './test/util.js';
 import { CreateIFFOptions, createIFF } from './index.js';
@@ -130,11 +130,5 @@ describe('CreateIFFResult', () => {
     });
     expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b', 'c.txt']);
     expect(await readdir(iff.join('b'))).toStrictEqual(['a.txt', 'b.txt']);
-  });
-  test('maskRootDir', async () => {
-    const iff = await createIFF({}, { rootDir: join(fixtureDir, 'a') });
-    expect(iff.maskRootDir(iff.join(''))).toBe('<iff.rootDir>');
-    expect(iff.maskRootDir(iff.join('a'))).toBe(join('<iff.rootDir>', 'a'));
-    expect(iff.maskRootDir(resolve('/a/b/c'))).toBe(resolve('/a/b/c'));
   });
 });

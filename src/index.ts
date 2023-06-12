@@ -10,7 +10,6 @@ export type CreateIFFResult = {
   rmRootDir: () => Promise<void>;
   rmFixtures: () => Promise<void>;
   addFixtures: (items: Directory) => Promise<void>;
-  maskRootDir: (str: string) => string;
 };
 export type IFFCreator = (directory: Directory) => Promise<CreateIFFResult>;
 
@@ -56,9 +55,6 @@ export async function createIFF(directory: Directory, options: CreateIFFOptions)
   async function addFixtures(items: Directory): Promise<void> {
     await createIFFImpl(items, rootDir);
   }
-  function maskRootDir(str: string): string {
-    return str.replaceAll(rootDir, '<iff.rootDir>');
-  }
 
   if (cleanUpBeforeWriting) {
     if (cleanUpBeforeWriting === 'rmRootDir') await rmRootDir();
@@ -71,6 +67,5 @@ export async function createIFF(directory: Directory, options: CreateIFFOptions)
     rmRootDir,
     rmFixtures,
     addFixtures,
-    maskRootDir,
   };
 }
