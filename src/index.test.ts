@@ -40,18 +40,22 @@ describe('createIFF', () => {
     const iff = await createIFF({ 'a.txt': 'a' }, { rootDir: join(fixtureDir, 'a') });
     expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
   });
-  test('rmFixturesBeforeCreating', async () => {
-    // rmFixturesBeforeCreating: true
-    await createIFF({ 'a.txt': 'a' }, { ...options, rmFixturesBeforeCreating: true });
+  test('cleanUpBeforeWriting', async () => {
+    // cleanUpBeforeWriting: 'rmRootDir'
+    await createIFF({ 'a.txt': 'a' }, { ...options, cleanUpBeforeWriting: 'rmRootDir' });
     expect(await readdir(fixtureDir)).toStrictEqual(['a.txt']);
 
-    // rmFixturesBeforeCreating: false
-    await createIFF({ 'b.txt': 'b' }, { ...options, rmFixturesBeforeCreating: false });
+    // cleanUpBeforeWriting: false
+    await createIFF({ 'b.txt': 'b' }, { ...options, cleanUpBeforeWriting: false });
     expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b.txt']);
 
-    // rmFixturesBeforeCreating: true
-    await createIFF({ 'c.txt': 'c' }, { ...options, rmFixturesBeforeCreating: true });
-    expect(await readdir(fixtureDir)).toStrictEqual(['c.txt']);
+    // cleanUpBeforeWriting: 'rmFixtures'
+    await createIFF({}, { ...options, cleanUpBeforeWriting: 'rmFixtures' });
+    expect(await readdir(fixtureDir)).toStrictEqual([]);
+
+    // cleanUpBeforeWriting: 'rmRootDir'
+    await createIFF({}, { ...options, cleanUpBeforeWriting: 'rmRootDir' });
+    await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
   });
 });
 
