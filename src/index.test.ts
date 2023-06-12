@@ -8,7 +8,34 @@ const options = {
   rootDir: fixtureDir,
 } as const satisfies CreateIFFOptions;
 
-describe('initIFF', () => {
+test('integration', async () => {
+  const iff = await createIFF(
+    {
+      'a.txt': 'a',
+      'b': {
+        'a.txt': 'b-a',
+      },
+    },
+    options,
+  );
+  expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
+  expect(iff.join('b/a.txt')).toBe(join(fixtureDir, 'b/a.txt'));
+  expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
+  expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+
+  await writeFile(iff.join('c.txt'), 'c');
+  expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
+
+  await iff.rmFixtures();
+
+  expect(await readdir(fixtureDir)).toStrictEqual([]);
+
+  await iff.rmRootDir();
+
+  await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
+});
+
+describe('createIFF', () => {
   test('rootDir', async () => {
     const iff = await createIFF({ 'a.txt': 'a' }, { rootDir: join(fixtureDir, 'a') });
     expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
@@ -28,33 +55,7 @@ describe('initIFF', () => {
   });
 });
 
-describe('createIFF', () => {
-  test('integration', async () => {
-    const iff = await createIFF(
-      {
-        'a.txt': 'a',
-        'b': {
-          'a.txt': 'b-a',
-        },
-      },
-      options,
-    );
-    expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
-    expect(iff.join('b/a.txt')).toBe(join(fixtureDir, 'b/a.txt'));
-    expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
-    expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
-
-    await writeFile(iff.join('c.txt'), 'c');
-    expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
-
-    await iff.rmFixtures();
-
-    expect(await readdir(fixtureDir)).toStrictEqual([]);
-
-    await iff.rmRootDir();
-
-    await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
-  });
+describe('CreateIFFResult', () => {
   test('rootDir', async () => {
     const iff = await createIFF({}, { rootDir: join(fixtureDir, 'a') });
     expect(iff.rootDir).toBe(join(fixtureDir, 'a'));
