@@ -2,9 +2,6 @@ import { readdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 
-export type CleanUpBeforeWriting = 'rmRootDir' | 'rmFixtures' | false;
-export const DEFAULT_CLEAN_UP_BEFORE_WRITING = 'rmRootDir' satisfies CleanUpBeforeWriting;
-
 export type CreateIFFResult = {
   /** The resolved `rootDir`. */
   rootDir: string;
@@ -27,17 +24,23 @@ export type CreateIFFOptions = {
    * If `false` is passed, no clean-up is done.
    * @default 'rmRootDir'
    */
-  cleanUpBeforeWriting?: CleanUpBeforeWriting | undefined;
+  cleanUpBeforeWriting?: 'rmRootDir' | 'rmFixtures' | false | undefined;
   /**
    * If `true`, `createIFF` does not write files.
    * This option does not affect `CreateIFFResult#addFixtures`.
    * @default false
    */
-  noWrite?: boolean;
+  noWrite?: boolean | undefined;
 };
 
+export const DEFAULT_CLEAN_UP_BEFORE_WRITING = 'rmRootDir' satisfies Exclude<
+  CreateIFFOptions['cleanUpBeforeWriting'],
+  undefined
+>;
+export const DEFAULT_NO_WRITE = false satisfies Exclude<CreateIFFOptions['noWrite'], undefined>;
+
 export async function createIFF(directory: Directory, options: CreateIFFOptions): Promise<CreateIFFResult> {
-  const { cleanUpBeforeWriting = DEFAULT_CLEAN_UP_BEFORE_WRITING } = options;
+  const { cleanUpBeforeWriting = DEFAULT_CLEAN_UP_BEFORE_WRITING, noWrite = DEFAULT_NO_WRITE } = options;
   const rootDir = resolve(options.rootDir); // normalize path
 
   function getRealPath(...paths: string[]): string {
@@ -57,9 +60,11 @@ export async function createIFF(directory: Directory, options: CreateIFFOptions)
     return str.replaceAll(rootDir, '<iff.rootDir>');
   }
 
-  if (cleanUpBeforeWriting === 'rmRootDir') await rmRootDir();
-  if (cleanUpBeforeWriting === 'rmFixtures') await rmFixtures();
-  await createIFFImpl(directory, rootDir);
+  if (cleanUpBeforeWriting) {
+    if (cleanUpBeforeWriting === 'rmRootDir') await rmRootDir();
+    if (cleanUpBeforeWriting === 'rmFixtures') await rmFixtures();
+  }
+  if (!noWrite) await createIFFImpl(directory, rootDir);
   return {
     rootDir,
     join: getRealPath,

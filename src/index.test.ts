@@ -57,6 +57,12 @@ describe('createIFF', () => {
     await createIFF({}, { ...options, cleanUpBeforeWriting: 'rmRootDir' });
     await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
   });
+  test('noWrite', async () => {
+    const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
+    await expect(readFile(iff1.join('a.txt'), 'utf-8')).resolves.not.toThrowError();
+    const iff2 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: true });
+    await expect(readFile(iff2.join('a.txt'), 'utf-8')).rejects.toThrowError();
+  });
 });
 
 describe('CreateIFFResult', () => {
