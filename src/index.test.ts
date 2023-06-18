@@ -1,14 +1,14 @@
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { fixtureDir } from './test/util.js';
+import { fixtureDir, oneOf, exists } from './test/util.js';
 import { CreateIFFOptions, createIFF } from './index.js';
 
 const options = {
   rootDir: fixtureDir,
 } as const satisfies CreateIFFOptions;
 
-test('integration', async () => {
+test('integration test', async () => {
   const iff = await createIFF(
     {
       'a.txt': 'a',
@@ -57,11 +57,25 @@ describe('createIFF', () => {
     await createIFF({}, { ...options, cleanUpBeforeWriting: 'rmRootDir' });
     await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
   });
-  test('noWrite', async () => {
-    const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
-    await expect(readFile(iff1.join('a.txt'), 'utf-8')).resolves.not.toThrowError();
-    const iff2 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: true });
-    await expect(readFile(iff2.join('a.txt'), 'utf-8')).rejects.toThrowError();
+  describe('noWrite', () => {
+    test('skip writing if true', async () => {
+      const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
+      await expect(readFile(iff1.join('a.txt'), 'utf-8')).resolves.not.toThrowError();
+
+      const iff2 = await createIFF({ 'b.txt': 'b' }, { ...options, noWrite: true });
+      expect(await exists(iff2.join('b.txt'))).toBe(false);
+    });
+    test('skip clean-up if true', async () => {
+      const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
+      expect(await exists(iff1.join('a.txt'))).toBe(true);
+
+      const cleanUpBeforeWriting = oneOf(['rmRootDir', 'rmFixtures']);
+      const iff2 = await createIFF({}, { ...options, cleanUpBeforeWriting, noWrite: true });
+      expect(await exists(iff2.join('a.txt'))).toBe(true);
+
+      const iff3 = await createIFF({}, { ...options, cleanUpBeforeWriting, noWrite: false });
+      expect(await exists(iff3.join('a.txt'))).toBe(false);
+    });
   });
 });
 

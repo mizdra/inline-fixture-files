@@ -3,15 +3,25 @@ import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 
 export type CreateIFFResult = {
-  /** The resolved `rootDir`. */
+  /**
+   * The directory where fixtures are written.
+   * This directory is obtained by processing the directory specified in `CreateIFFOptions#rootDir`
+   * using `path.resolve`.
+   */
   rootDir: string;
   /** Join `rootDir` and `path`. */
   join: (...paths: string[]) => string;
+  /** Delete `rootDir`. */
   rmRootDir: () => Promise<void>;
+  /** Delete fixtures under `rootDir`. */
   rmFixtures: () => Promise<void>;
+  /**
+   * Add fixtures to `rootDir`.
+   * This function always performs the write operation regardless of the value of `CreateIFFOptions#noWrite`.
+   * @param items The definition of fixtures to be added.
+   */
   addFixtures: (items: Directory) => Promise<void>;
 };
-export type IFFCreator = (directory: Directory) => Promise<CreateIFFResult>;
 
 export type CreateIFFOptions = {
   /** Root directory for fixtures. */
@@ -26,7 +36,8 @@ export type CreateIFFOptions = {
   cleanUpBeforeWriting?: 'rmRootDir' | 'rmFixtures' | false | undefined;
   /**
    * If `true`, `createIFF` does not write files.
-   * This option does not affect `CreateIFFResult#addFixtures`.
+   * When this option is `true`, the clean-up process by `cleanUpBeforeWriting` is skipped,
+   * but writing by `CreateIFFResult#addFixtures` is not disabled.
    * @default false
    */
   noWrite?: boolean | undefined;
@@ -38,6 +49,12 @@ export const DEFAULT_CLEAN_UP_BEFORE_WRITING = 'rmRootDir' satisfies Exclude<
 >;
 export const DEFAULT_NO_WRITE = false satisfies Exclude<CreateIFFOptions['noWrite'], undefined>;
 
+/**
+ * Create fixtures in the specified directory.
+ * @param directory The definition of fixtures to be created.
+ * @param options Options for creating fixtures.
+ * @returns An object that provides functions to manipulate the fixtures.
+ */
 export async function createIFF(directory: Directory, options: CreateIFFOptions): Promise<CreateIFFResult> {
   const { cleanUpBeforeWriting = DEFAULT_CLEAN_UP_BEFORE_WRITING, noWrite = DEFAULT_NO_WRITE } = options;
   const rootDir = resolve(options.rootDir); // normalize path
@@ -56,11 +73,14 @@ export async function createIFF(directory: Directory, options: CreateIFFOptions)
     await createIFFImpl(items, rootDir);
   }
 
-  if (cleanUpBeforeWriting) {
-    if (cleanUpBeforeWriting === 'rmRootDir') await rmRootDir();
-    if (cleanUpBeforeWriting === 'rmFixtures') await rmFixtures();
+  if (!noWrite) {
+    if (cleanUpBeforeWriting) {
+      if (cleanUpBeforeWriting === 'rmRootDir') await rmRootDir();
+      if (cleanUpBeforeWriting === 'rmFixtures') await rmFixtures();
+    }
+    await createIFFImpl(directory, rootDir);
   }
-  if (!noWrite) await createIFFImpl(directory, rootDir);
+
   return {
     rootDir,
     join: getRealPath,
