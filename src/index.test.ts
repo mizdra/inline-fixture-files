@@ -32,7 +32,7 @@ test('integration test', async () => {
 
   await iff.rmRootDir();
 
-  await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
+  expect(await exists(fixtureDir)).toBe(false);
 });
 
 describe('createIFF', () => {
@@ -55,12 +55,12 @@ describe('createIFF', () => {
 
     // cleanUpBeforeWriting: 'rmRootDir'
     await createIFF({}, { ...options, cleanUpBeforeWriting: 'rmRootDir' });
-    await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
+    expect(await exists(fixtureDir)).toBe(false);
   });
   describe('noWrite', () => {
     test('skip writing if true', async () => {
       const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
-      await expect(readFile(iff1.join('a.txt'), 'utf-8')).resolves.not.toThrowError();
+      expect(await exists(iff1.join('a.txt'))).toBe(true);
 
       const iff2 = await createIFF({ 'b.txt': 'b' }, { ...options, noWrite: true });
       expect(await exists(iff2.join('b.txt'))).toBe(false);
@@ -122,7 +122,7 @@ describe('CreateIFFResult', () => {
     );
     expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b']);
     await iff.rmRootDir();
-    await expect(readdir(fixtureDir)).rejects.toThrowError(); // The directory is removed, so readdir throws error
+    expect(await exists(fixtureDir)).toBe(false);
   });
   test('addFixtures', async () => {
     const iff = await createIFF(
@@ -134,15 +134,15 @@ describe('CreateIFFResult', () => {
       },
       options,
     );
-    expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b']);
-    expect(await readdir(iff.join('b'))).toStrictEqual(['a.txt']);
     await iff.addFixtures({
       'b': {
         'b.txt': 'b-b',
       },
       'c.txt': 'c',
     });
-    expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b', 'c.txt']);
-    expect(await readdir(iff.join('b'))).toStrictEqual(['a.txt', 'b.txt']);
+    expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
+    expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+    expect(await readFile(iff.join('b/b.txt'), 'utf-8')).toMatchInlineSnapshot('"b-b"');
+    expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
   });
 });

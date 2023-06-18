@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { realpathSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 
@@ -8,7 +8,7 @@ import { resolve } from 'node:path';
 export const fixtureDir = resolve(realpathSync(tmpdir()), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
 
 export async function exists(path: string): Promise<boolean> {
-  return readFile(path, 'utf-8')
+  return stat(path)
     .then(() => true)
     .catch(() => false);
 }
