@@ -20,6 +20,11 @@ test('integration test', async () => {
   );
   expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
   expect(iff.join('b/a.txt')).toBe(join(fixtureDir, 'b/a.txt'));
+
+  expect(iff.paths['a.txt']).toBe(join(fixtureDir, 'a.txt'));
+  expect(iff.paths['b']).toBe(join(fixtureDir, 'b'));
+  expect(iff.paths['b/a.txt']).toBe(join(fixtureDir, 'b/a.txt'));
+
   expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
   expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
 

@@ -1,8 +1,9 @@
 import { readdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
+import { FlattenDirectory, getPaths } from './get-paths.js';
 
-export type CreateIFFResult = {
+export type CreateIFFResult<T extends Directory> = {
   /**
    * The directory where fixtures are written.
    * This directory is obtained by processing the directory specified in `CreateIFFOptions#rootDir`
@@ -18,9 +19,10 @@ export type CreateIFFResult = {
   /**
    * Add fixtures to `rootDir`.
    * This function always performs the write operation regardless of the value of `CreateIFFOptions#noWrite`.
-   * @param items The definition of fixtures to be added.
+   * @param directory The definition of fixtures to be added.
    */
-  addFixtures: (items: Directory) => Promise<void>;
+  addFixtures<U extends Directory>(directory: U): Promise<FlattenDirectory<U>>;
+  paths: FlattenDirectory<T>;
 };
 
 export type CreateIFFOptions = {
@@ -55,7 +57,10 @@ export const DEFAULT_NO_WRITE = false satisfies Exclude<CreateIFFOptions['noWrit
  * @param options Options for creating fixtures.
  * @returns An object that provides functions to manipulate the fixtures.
  */
-export async function createIFF(directory: Directory, options: CreateIFFOptions): Promise<CreateIFFResult> {
+export async function createIFF<const T extends Directory>(
+  directory: T,
+  options: CreateIFFOptions,
+): Promise<CreateIFFResult<T>> {
   const { cleanUpBeforeWriting = DEFAULT_CLEAN_UP_BEFORE_WRITING, noWrite = DEFAULT_NO_WRITE } = options;
   const rootDir = resolve(options.rootDir); // normalize path
 
@@ -69,8 +74,9 @@ export async function createIFF(directory: Directory, options: CreateIFFOptions)
     const files = await readdir(rootDir);
     await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
   }
-  async function addFixtures(items: Directory): Promise<void> {
-    await createIFFImpl(items, rootDir);
+  async function addFixtures<U extends Directory>(directory: U): Promise<FlattenDirectory<U>> {
+    await createIFFImpl(directory, rootDir);
+    return getPaths(directory, rootDir);
   }
 
   if (!noWrite) {
@@ -87,5 +93,6 @@ export async function createIFF(directory: Directory, options: CreateIFFOptions)
     rmRootDir,
     rmFixtures,
     addFixtures,
+    paths: getPaths<T>(directory, rootDir),
   };
 }

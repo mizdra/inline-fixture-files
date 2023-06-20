@@ -66,6 +66,12 @@ test('throw error when item name ends with separator', async () => {
   );
 });
 
+test('throw error when item name contains consecutive separators', async () => {
+  await expect(createIFF({ 'a//a.txt': 'a--a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+    '"Item name must not contain consecutive separators: a//a.txt"',
+  );
+});
+
 test('merge creating fixtures for same directory', async () => {
   await createIFF(
     {
