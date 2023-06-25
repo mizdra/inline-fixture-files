@@ -1,5 +1,5 @@
 {
-  "name": "inline-fs-fixtures",
+  "name": "@mizdra/inline-fs-fixtures",
   "description": "A utility to write filesystem fixtures inline.",
   "version": "0.0.0",
   "type": "module",
