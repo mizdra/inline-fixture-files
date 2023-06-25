@@ -19,7 +19,7 @@ $ npm i -D @mizdra/inline-fs-fixtures
 
 ```typescript
 import { createIFF } from '@mizdra/inline-fs-fixtures';
-import { test, expect } from 'vitest';
+import { test, expect, expectType } from 'vitest';
 import { readFile, readdir } from 'node:fs/promises';
 import { exists } from 'node:fs';
 import { join, resolve } from 'node:path';
