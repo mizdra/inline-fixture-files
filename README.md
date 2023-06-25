@@ -2,6 +2,19 @@
 
 The utility for writing fixture files inline.
 
+## Installation
+
+```console
+$ npm i -D @mizdra/inline-fixture-files
+```
+
+## Features
+
+- Write fixture files inline
+- TypeScript support
+- Cross-platform support
+- Zero dependencies
+
 ## Motivation
 
 When writing tests, it is often necessary to create fixture files. A common approach is to create a `fixture/` directory and write the fixture files there.
@@ -64,19 +77,6 @@ test('eslint reports lint errors', async () => {
   `);
 });
 ```
-
-## Installation
-
-```console
-$ npm i -D @mizdra/inline-fixture-files
-```
-
-## Features
-
-- Write fixture files inline
-- TypeScript support
-- Cross-platform support
-- Zero dependencies
 
 ## Available APIs
 
