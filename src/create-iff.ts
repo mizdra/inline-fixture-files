@@ -1,7 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { sep as sepForPosix } from 'node:path/posix';
-import { sep as sepForWin32 } from 'node:path/win32';
 
 export type FileType = string; // TODO: support `File` class
 
@@ -18,11 +17,9 @@ export function isFile(item: DirectoryItem): item is FileType {
 
 export async function createIFF(directory: Directory, baseDir: string): Promise<void> {
   for (const [name, item] of Object.entries(directory)) {
-    if (name.startsWith(sepForPosix) || name.startsWith(sepForWin32))
-      throw new Error(`Item name must not start with separator: ${name}`);
-    if (name.endsWith(sepForPosix) || name.endsWith(sepForWin32))
-      throw new Error(`Item name must not end with separator: ${name}`);
-    if (name.includes(sepForPosix.repeat(2)) || name.includes(sepForWin32.repeat(2)))
+    if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
+    if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
+    if (name.includes(sepForPosix.repeat(2)))
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
     const path = join(baseDir, name);

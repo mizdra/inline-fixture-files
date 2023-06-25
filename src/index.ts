@@ -107,6 +107,19 @@ export const DEFAULT_NO_WRITE = false satisfies Exclude<CreateIFFOptions['noWrit
 
 /**
  * Create fixtures in the specified directory.
+ * The path separator must be in POSIX format (`/`).
+ * Use of Windows path separator is an undefined behavior.
+ * @example
+ * ```ts
+ * const iff = await createIFF(
+ *   {
+ *   'a.txt': 'a',
+ *   'b': {
+ *     'a.txt': 'b-a',
+ *   },
+ *   'c/a/a.txt': 'c-a-a',
+ * }, fixturesDir);
+ * ```
  * @param directory The definition of fixtures to be created.
  * @param options Options for creating fixtures.
  * @returns An object that provides functions to manipulate the fixtures.

@@ -1,6 +1,5 @@
 import { dirname, join } from 'node:path';
-import { sep as sepForPosix } from 'node:path/posix';
-import { sep as sepForWin32 } from 'node:path/win32';
+import { join as joinForPosix, sep as sepForPosix } from 'node:path/posix';
 import { Directory, isFile } from './create-iff.js';
 
 /** Utility type that converts `{ a: string, [key: string]: any; }` to `{ a: string }`. */
@@ -45,19 +44,17 @@ export function getSelfAndUpperPaths(path: string): string[] {
 export function getPaths<T extends Directory>(directory: T, rootDir: string, prefix = ''): FlattenDirectory<T> {
   let paths: Record<string, string> = {};
   for (const [name, item] of Object.entries(directory)) {
-    if (name.startsWith(sepForPosix) || name.startsWith(sepForWin32))
-      throw new Error(`Item name must not start with separator: ${name}`);
-    if (name.endsWith(sepForPosix) || name.endsWith(sepForWin32))
-      throw new Error(`Item name must not end with separator: ${name}`);
-    if (name.includes(sepForPosix.repeat(2)) || name.includes(sepForWin32.repeat(2)))
+    if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
+    if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
+    if (name.includes(sepForPosix.repeat(2)))
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
     for (const n of getSelfAndUpperPaths(name)) {
-      paths[join(prefix, n)] = join(rootDir, prefix, n);
+      paths[joinForPosix(prefix, n)] = join(rootDir, prefix, n);
     }
 
     if (!isFile(item)) {
-      const newPaths = getPaths(item, rootDir, join(prefix, name));
+      const newPaths = getPaths(item, rootDir, joinForPosix(prefix, name));
       paths = { ...paths, ...newPaths };
     }
   }
