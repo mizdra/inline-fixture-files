@@ -1,4 +1,4 @@
-# @mizdra/inline-fs-fixtures
+# @mizdra/inline-fixture-files
 
 The utility for writing fixture files inline.
 
@@ -17,7 +17,7 @@ index.ts    math.ts
 
 However, this approach leads to the test code and fixture file definitions being far apart. This makes it difficult to understand the test code.
 
-`@mizdra/inline-fs-fixtures` allows you to define fixture files in your test code. This makes the test code easier to understand.
+`@mizdra/inline-fixture-files` allows you to define fixture files in your test code. This makes the test code easier to understand.
 
 ```typescript
 import { tmpdir } from 'node:os';
@@ -25,7 +25,7 @@ import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
 import { expect, test } from 'vitest';
-import { createIFF } from '@mizdra/inline-fs-fixtures';
+import { createIFF } from '@mizdra/inline-fixture-files';
 
 const fixtureDir = join(tmpdir(), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
 
@@ -68,7 +68,7 @@ test('eslint reports lint errors', async () => {
 ## Installation
 
 ```console
-$ npm i -D @mizdra/inline-fs-fixtures
+$ npm i -D @mizdra/inline-fixture-files
 ```
 
 ## Features
