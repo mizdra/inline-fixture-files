@@ -3,6 +3,14 @@ import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
+type AddFixturesResult<T extends Directory> = {
+  /**
+   * The paths of the added fixtures.
+   * @see CreateIFFResult#paths
+   */
+  paths: FlattenDirectory<T>;
+};
+
 export type CreateIFFResult<T extends Directory> = {
   /**
    * The directory where fixtures are written.
@@ -10,7 +18,53 @@ export type CreateIFFResult<T extends Directory> = {
    * using `path.resolve`.
    */
   rootDir: string;
-  /** Join `rootDir` and `path`. */
+  /**
+   * The paths of the fixtures.
+   * For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === `iff.join('a.txt')`.
+   *
+   * ```ts
+   * const iff = await createIFF({
+   *   'a.txt': 'a',
+   *   'b': {
+   *      'a.txt': 'b-a',
+   *   },
+   *   'c/a/a.txt': 'c-a-a',
+   * }, fixturesDir);
+   * expect(iff.paths).toStrictEqual({
+   *   'a.txt': iff.join('a.txt'),
+   *   'b': iff.join('b'),
+   *   'b/a.txt': iff.join('b/a.txt'),
+   *   'c': iff.join('c'),
+   *   'c/a': iff.join('c/a'),
+   *   'c/a/a.txt': iff.join('c/a/a.txt'),
+   * });
+   * ```
+   *
+   * The `paths` keys are strictly typed. However, index signatures are excluded for convenience.
+   *
+   * ```ts
+   * const iff = await createIFF({
+   *   'a.txt': 'a',
+   *   'b': {
+   *      'a.txt': 'b-a',
+   *   },
+   *   ['c.txt' as string]: 'c',
+   *   ['d' as string]: {
+   *     'a.txt': 'd-a',
+   *   },
+   * }, fixturesDir);
+   * expectType<{
+   *   'a.txt': string;
+   *   'b': string;
+   *   'b/a.txt': string;
+   * }>(iff.paths);
+   * ```
+   */
+  paths: FlattenDirectory<T>;
+  /**
+   * Join `rootDir` and `paths`.
+   * That is, it is equivalent to `require('path').join(rootDir, ...paths)`.
+   */
   join: (...paths: string[]) => string;
   /** Delete `rootDir`. */
   rmRootDir: () => Promise<void>;
@@ -20,9 +74,9 @@ export type CreateIFFResult<T extends Directory> = {
    * Add fixtures to `rootDir`.
    * This function always performs the write operation regardless of the value of `CreateIFFOptions#noWrite`.
    * @param directory The definition of fixtures to be added.
+   * @returns The paths of the added fixtures.
    */
-  addFixtures<U extends Directory>(directory: U): Promise<FlattenDirectory<U>>;
-  paths: FlattenDirectory<T>;
+  addFixtures<U extends Directory>(directory: U): Promise<AddFixturesResult<U>>;
 };
 
 export type CreateIFFOptions = {
@@ -74,9 +128,9 @@ export async function createIFF<const T extends Directory>(
     const files = await readdir(rootDir);
     await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
   }
-  async function addFixtures<U extends Directory>(directory: U): Promise<FlattenDirectory<U>> {
+  async function addFixtures<U extends Directory>(directory: U): Promise<AddFixturesResult<U>> {
     await createIFFImpl(directory, rootDir);
-    return getPaths(directory, rootDir);
+    return { paths: getPaths(directory, rootDir) };
   }
 
   if (!noWrite) {
