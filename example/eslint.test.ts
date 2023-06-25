@@ -35,10 +35,10 @@ test('eslint reports lint errors', async () => {
   const results = await eslint.lintFiles([iff.paths['src/no-debugger.js'], iff.paths['src/semi.js']]);
   const formatter = await eslint.loadFormatter('unix');
   const resultText = formatter.format(results);
-  expect(resultText).toMatchInlineSnapshot(`
-    "${iff.rootDir}/src/no-debugger.js:1:1: Unexpected 'debugger' statement. [Error/no-debugger]
+  expect(resultText).toStrictEqual(dedent`
+    ${iff.rootDir}/src/no-debugger.js:1:1: Unexpected 'debugger' statement. [Error/no-debugger]
     ${iff.rootDir}/src/semi.js:2:25: Missing semicolon. [Error/semi]
 
-    2 problems"
+    2 problems
   `);
 });
