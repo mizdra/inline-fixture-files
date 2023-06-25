@@ -1,5 +1,5 @@
-import { dirname, join } from 'node:path';
-import { join as joinForPosix, sep as sepForPosix } from 'node:path/posix';
+import { join } from 'node:path';
+import { join as joinForPosix, dirname as dirnameForPosix, sep as sepForPosix } from 'node:path/posix';
 import { Directory, isFile } from './create-iff.js';
 
 /** Utility type that converts `{ a: string, [key: string]: any; }` to `{ a: string }`. */
@@ -36,7 +36,7 @@ export type FlattenDirectory<T extends Directory> = {
 
 /** Convert `'a/b/c'` to `['a/b/c', 'a/b', 'a']` */
 export function getSelfAndUpperPaths(path: string): string[] {
-  const parent = dirname(path);
+  const parent = dirnameForPosix(path);
   if (parent === '.') return [path];
   return [path, ...getSelfAndUpperPaths(parent)];
 }
