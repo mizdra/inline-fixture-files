@@ -1,13 +1,13 @@
 {
   "name": "@mizdra/inline-fixture-files",
-  "description": "A utility to write filesystem fixtures inline.",
+  "description": "The utility for writing fixture files inline.",
   "version": "0.0.0",
   "type": "module",
   "sideEffects": false,
   "repository": "https://github.com/mizdra/inline-fs-fixtures.git",
   "author": "mizdra <pp.mizdra@gmail.com>",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "exports": {
     ".": {
       "import": {
@@ -18,7 +18,6 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "dev": "npm run build && node bin/example-command.js",
     "lint": "run-s -c lint:*",
     "lint:tsc": "tsc",
     "lint:eslint": "eslint .",
@@ -53,10 +52,11 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "bin": {
-    "example-command": "bin/example-command.js"
-  },
-  "keywords": [],
+  "keywords": [
+    "fixture",
+    "test",
+    "file-system"
+  ],
   "files": [
     "bin",
     "src",
