@@ -1,12 +1,17 @@
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
-import { expect, test } from 'vitest';
+import { expect, test, beforeEach } from 'vitest';
 import { createIFF } from '../src/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const fixtureDir = join(tmpdir(), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
+
+beforeEach(async () => {
+  await rm(fixtureDir, { recursive: true, force: true });
+});
 
 test('eslint reports lint errors', async () => {
   const iff = await createIFF(

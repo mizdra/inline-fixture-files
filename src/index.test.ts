@@ -1,12 +1,16 @@
-import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { describe, expect, test } from 'vitest';
-import { fixtureDir, oneOf, exists } from './test/util.js';
+import { beforeEach, describe, expect, test } from 'vitest';
+import { fixtureDir, exists } from './test/util.js';
 import { CreateIFFOptions, createIFF } from './index.js';
 
 const options = {
   rootDir: fixtureDir,
 } as const satisfies CreateIFFOptions;
+
+beforeEach(async () => {
+  await rm(fixtureDir, { recursive: true, force: true });
+});
 
 test('integration test', async () => {
   const iff = await createIFF(
@@ -45,23 +49,6 @@ describe('createIFF', () => {
     const iff = await createIFF({ 'a.txt': 'a' }, { rootDir: join(fixtureDir, 'a') });
     expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
   });
-  test('cleanUpBeforeWriting', async () => {
-    // cleanUpBeforeWriting: 'rmRootDir'
-    await createIFF({ 'a.txt': 'a' }, { ...options, cleanUpBeforeWriting: 'rmRootDir' });
-    expect(await readdir(fixtureDir)).toStrictEqual(['a.txt']);
-
-    // cleanUpBeforeWriting: false
-    await createIFF({ 'b.txt': 'b' }, { ...options, cleanUpBeforeWriting: false });
-    expect(await readdir(fixtureDir)).toStrictEqual(['a.txt', 'b.txt']);
-
-    // cleanUpBeforeWriting: 'rmFixtures'
-    await createIFF({}, { ...options, cleanUpBeforeWriting: 'rmFixtures' });
-    expect(await readdir(fixtureDir)).toStrictEqual([]);
-
-    // cleanUpBeforeWriting: 'rmRootDir'
-    await createIFF({}, { ...options, cleanUpBeforeWriting: 'rmRootDir' });
-    expect(await exists(fixtureDir)).toBe(false);
-  });
   describe('noWrite', () => {
     test('skip writing if true', async () => {
       const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
@@ -69,17 +56,6 @@ describe('createIFF', () => {
 
       const iff2 = await createIFF({ 'b.txt': 'b' }, { ...options, noWrite: true });
       expect(await exists(iff2.join('b.txt'))).toBe(false);
-    });
-    test('skip clean-up if true', async () => {
-      const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
-      expect(await exists(iff1.join('a.txt'))).toBe(true);
-
-      const cleanUpBeforeWriting = oneOf(['rmRootDir', 'rmFixtures']);
-      const iff2 = await createIFF({}, { ...options, cleanUpBeforeWriting, noWrite: true });
-      expect(await exists(iff2.join('a.txt'))).toBe(true);
-
-      const iff3 = await createIFF({}, { ...options, cleanUpBeforeWriting, noWrite: false });
-      expect(await exists(iff3.join('a.txt'))).toBe(false);
     });
   });
 });
