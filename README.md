@@ -109,7 +109,7 @@ Use of Windows path separator is an undefined behavior.
 #### Examples
 
 ````javascript
-    ```ts
+```ts
     const iff = await createIFF(
       {
       'a.txt': 'a',
@@ -118,7 +118,7 @@ Use of Windows path separator is an undefined behavior.
       },
       'c/a/a.txt': 'c-a-a',
     }, fixturesDir);
-    ```
+    ```;
 ````
 
 Returns **[Promise][14]\\&lt;CreateIFFResult\\<T>>** An object that provides functions to manipulate the fixtures.
@@ -129,13 +129,16 @@ The paths of the fixtures.
 For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === iff.join('a.txt')`.
 
 ```ts
-const iff = await createIFF({
-  'a.txt': 'a',
-  'b': {
-     'a.txt': 'b-a',
+const iff = await createIFF(
+  {
+    'a.txt': 'a',
+    'b': {
+      'a.txt': 'b-a',
+    },
+    'c/a/a.txt': 'c-a-a',
   },
-  'c/a/a.txt': 'c-a-a',
-}, fixturesDir);
+  fixturesDir,
+);
 expect(iff.paths).toStrictEqual({
   'a.txt': iff.join('a.txt'),
   'b': iff.join('b'),
@@ -149,16 +152,19 @@ expect(iff.paths).toStrictEqual({
 The `paths` keys are strictly typed. However, index signatures are excluded for convenience.
 
 ```ts
-const iff = await createIFF({
-  'a.txt': 'a',
-  'b': {
-     'a.txt': 'b-a',
+const iff = await createIFF(
+  {
+    'a.txt': 'a',
+    'b': {
+      'a.txt': 'b-a',
+    },
+    ['c.txt' as string]: 'c',
+    ['d' as string]: {
+      'a.txt': 'd-a',
+    },
   },
-  ['c.txt' as string]: 'c',
-  ['d' as string]: {
-    'a.txt': 'd-a',
-  },
-}, fixturesDir);
+  fixturesDir,
+);
 expectType<{
   'a.txt': string;
   'b': string;
@@ -178,8 +184,8 @@ This function always performs the write operation regardless of the value of `Cr
 
 #### Parameters
 
-- `directory`  The definition of fixtures to be added.
-- `directory`  @ignore
+- `directory` The definition of fixtures to be added.
+- `directory` @ignore
 
 Returns **any** The paths of the added fixtures.
 
@@ -213,29 +219,16 @@ But this option cannot disable writing by `CreateIFFResult#addFixtures`.
 The paths of the added fixtures.
 
 [1]: #createiff
-
 [2]: #parameters
-
 [3]: #examples
-
 [4]: #createiffresultpaths
-
 [5]: #createiffresultjoin
-
 [6]: #createiffresultaddfixtures
-
 [7]: #parameters-1
-
 [8]: #createiffresultrmrootdir
-
 [9]: #createiffresultrmfixtures
-
 [10]: #createiffresultrootdir
-
 [11]: #createiffoptionsrootdir
-
 [12]: #createiffoptionsnowrite
-
 [13]: #addfixturesresultpaths
-
 [14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
