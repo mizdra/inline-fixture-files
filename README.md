@@ -33,14 +33,19 @@ However, this approach leads to the test code and fixture file definitions being
 `@mizdra/inline-fixture-files` allows you to define fixture files in your test code. This makes the test code easier to understand.
 
 ```typescript
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
-import { expect, test } from 'vitest';
+import { expect, test, beforeEach } from 'vitest';
 import { createIFF } from '@mizdra/inline-fixture-files';
 
 const fixtureDir = join(tmpdir(), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
+
+beforeEach(async () => {
+  await rm(fixtureDir, { recursive: true, force: true });
+});
 
 test('eslint reports lint errors', async () => {
   const iff = await createIFF(
