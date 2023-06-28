@@ -1,0 +1,11 @@
+toc:
+  - createIFF
+  - CreateIFFResult#paths
+  - CreateIFFResult#join
+  - CreateIFFResult#addFixtures
+  - CreateIFFResult#rmRootDir
+  - CreateIFFResult#rmFixtures
+  - CreateIFFResult#rootDir
+  - CreateIFFOptions#rootDir
+  - CreateIFFOptions#noWrite
+  - AddFixturesResult#paths

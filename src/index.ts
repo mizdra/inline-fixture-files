@@ -7,6 +7,7 @@ type AddFixturesResult<T extends Directory> = {
   /**
    * The paths of the added fixtures.
    * @see CreateIFFResult#paths
+   * @name AddFixturesResult#paths
    */
   paths: FlattenDirectory<T>;
 };
@@ -16,11 +17,12 @@ export type CreateIFFResult<T extends Directory> = {
    * The directory where fixtures are written.
    * This directory is obtained by processing the directory specified in `CreateIFFOptions#rootDir`
    * using `path.resolve`.
+   * @name CreateIFFResult#rootDir
    */
   rootDir: string;
   /**
    * The paths of the fixtures.
-   * For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === `iff.join('a.txt')`.
+   * For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === iff.join('a.txt')`.
    *
    * ```ts
    * const iff = await createIFF({
@@ -59,33 +61,47 @@ export type CreateIFFResult<T extends Directory> = {
    *   'b/a.txt': string;
    * }>(iff.paths);
    * ```
+   * @name CreateIFFResult#paths
    */
   paths: FlattenDirectory<T>;
   /**
    * Join `rootDir` and `paths`.
    * That is, it is equivalent to `require('path').join(rootDir, ...paths)`.
+   * @name CreateIFFResult#join
    */
   join: (...paths: string[]) => string;
-  /** Delete `rootDir`. */
+  /**
+   * Delete `rootDir`.
+   * @name CreateIFFResult#rmRootDir
+   */
   rmRootDir: () => Promise<void>;
-  /** Delete fixtures under `rootDir`. */
+  /**
+   * Delete fixtures under `rootDir`.
+   * @name CreateIFFResult#rmFixtures
+   */
   rmFixtures: () => Promise<void>;
   /**
    * Add fixtures to `rootDir`.
    * This function always performs the write operation regardless of the value of `CreateIFFOptions#noWrite`.
    * @param directory The definition of fixtures to be added.
    * @returns The paths of the added fixtures.
+   * @name CreateIFFResult#addFixtures
+   * @param directory @ignore
    */
   addFixtures<U extends Directory>(directory: U): Promise<AddFixturesResult<U>>;
 };
 
 export type CreateIFFOptions = {
-  /** Root directory for fixtures. */
+  /**
+   * Root directory for fixtures.
+   * @name CreateIFFOptions#rootDir
+   */
   rootDir: string;
   /**
    * If `true`, `createIFF` does not write files.
    * But this option cannot disable writing by `CreateIFFResult#addFixtures`.
    * @default false
+   * @name CreateIFFOptions#noWrite
    */
   noWrite?: boolean | undefined;
 };

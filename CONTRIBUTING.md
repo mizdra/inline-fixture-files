@@ -9,6 +9,12 @@ This is a guide for contributors.
 - `npm run lint`: Run static-checking
 - `npm run test`: Run tests
 
+## How to update API documentation
+
+```bash
+documentation build src/index.ts --parse-extension ts -f md -c documentation.yml | add-text-to-markdown README.md --section "API documentation" --write
+```
+
 ## How to release
 
 - Wait for passing CI...
