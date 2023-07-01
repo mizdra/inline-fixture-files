@@ -82,7 +82,6 @@ export type CreateIFFResult<T extends Directory> = {
   rmFixtures: () => Promise<void>;
   /**
    * Add fixtures to `rootDir`.
-   * This function always performs the write operation regardless of the value of `CreateIFFOptions#noWrite`.
    * @param directory The definition of fixtures to be added.
    * @returns The paths of the added fixtures.
    * @name CreateIFFResult#addFixtures
@@ -97,16 +96,7 @@ export type CreateIFFOptions = {
    * @name CreateIFFOptions#rootDir
    */
   rootDir: string;
-  /**
-   * If `true`, `createIFF` does not write files.
-   * But this option cannot disable writing by `CreateIFFResult#addFixtures`.
-   * @default false
-   * @name CreateIFFOptions#noWrite
-   */
-  noWrite?: boolean | undefined;
 };
-
-export const DEFAULT_NO_WRITE = false satisfies Exclude<CreateIFFOptions['noWrite'], undefined>;
 
 /**
  * Create fixtures in the specified directory.
@@ -131,7 +121,6 @@ export async function createIFF<const T extends Directory>(
   directory: T,
   options: CreateIFFOptions,
 ): Promise<CreateIFFResult<T>> {
-  const { noWrite = DEFAULT_NO_WRITE } = options;
   const rootDir = resolve(options.rootDir); // normalize path
 
   function getRealPath(...paths: string[]): string {
@@ -149,9 +138,7 @@ export async function createIFF<const T extends Directory>(
     return { paths: getPaths(directory, rootDir) };
   }
 
-  if (!noWrite) {
-    await createIFFImpl(directory, rootDir);
-  }
+  await createIFFImpl(directory, rootDir);
 
   return {
     rootDir,

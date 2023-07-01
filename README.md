@@ -92,8 +92,7 @@ test('eslint reports lint errors', async () => {
 - [CreateIFFResult#rmFixtures][9]
 - [CreateIFFResult#rootDir][10]
 - [CreateIFFOptions#rootDir][11]
-- [CreateIFFOptions#noWrite][12]
-- [AddFixturesResult#paths][13]
+- [AddFixturesResult#paths][12]
 
 ### createIFF
 
@@ -121,7 +120,7 @@ Use of Windows path separator is an undefined behavior.
     ```;
 ````
 
-Returns **[Promise][14]\\&lt;CreateIFFResult\\<T>>** An object that provides functions to manipulate the fixtures.
+Returns **[Promise][13]\\&lt;CreateIFFResult\\<T>>** An object that provides functions to manipulate the fixtures.
 
 ### CreateIFFResult#paths
 
@@ -180,7 +179,6 @@ That is, it is equivalent to `require('path').join(rootDir, ...paths)`.
 ### CreateIFFResult#addFixtures
 
 Add fixtures to `rootDir`.
-This function always performs the write operation regardless of the value of `CreateIFFOptions#noWrite`.
 
 #### Parameters
 
@@ -207,11 +205,6 @@ using `path.resolve`.
 
 Root directory for fixtures.
 
-### CreateIFFOptions#noWrite
-
-If `true`, `createIFF` does not write files.
-But this option cannot disable writing by `CreateIFFResult#addFixtures`.
-
 ### AddFixturesResult#paths
 
 - **See**: CreateIFFResult#paths
@@ -229,6 +222,5 @@ The paths of the added fixtures.
 [9]: #createiffresultrmfixtures
 [10]: #createiffresultrootdir
 [11]: #createiffoptionsrootdir
-[12]: #createiffoptionsnowrite
-[13]: #addfixturesresultpaths
-[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[12]: #addfixturesresultpaths
+[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
