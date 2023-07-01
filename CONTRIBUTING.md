@@ -12,7 +12,9 @@ This is a guide for contributors.
 ## How to update API documentation
 
 ```bash
-documentation build src/index.ts --parse-extension ts -f md -c documentation.yml | add-text-to-markdown README.md --section "API documentation" --write
+documentation build src/index.ts --parse-extension ts -f md -c documentation.yml \
+  | add-text-to-markdown README.md --section "API documentation" --write \
+  && npm run lint:prettier -- --write
 ```
 
 ## How to release
