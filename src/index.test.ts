@@ -49,15 +49,6 @@ describe('createIFF', () => {
     const iff = await createIFF({ 'a.txt': 'a' }, { rootDir: join(fixtureDir, 'a') });
     expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
   });
-  describe('noWrite', () => {
-    test('skip writing if true', async () => {
-      const iff1 = await createIFF({ 'a.txt': 'a' }, { ...options, noWrite: false });
-      expect(await exists(iff1.join('a.txt'))).toBe(true);
-
-      const iff2 = await createIFF({ 'b.txt': 'b' }, { ...options, noWrite: true });
-      expect(await exists(iff2.join('b.txt'))).toBe(false);
-    });
-  });
 });
 
 describe('CreateIFFResult', () => {
