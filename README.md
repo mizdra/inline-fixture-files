@@ -83,16 +83,15 @@ test('eslint reports lint errors', async () => {
 
 - [createIFF][1]
   - [Parameters][2]
-  - [Examples][3]
-- [CreateIFFResult#paths][4]
-- [CreateIFFResult#join][5]
-- [CreateIFFResult#addFixtures][6]
-  - [Parameters][7]
-- [CreateIFFResult#rmRootDir][8]
-- [CreateIFFResult#rmFixtures][9]
-- [CreateIFFResult#rootDir][10]
-- [CreateIFFOptions#rootDir][11]
-- [AddFixturesResult#paths][12]
+- [CreateIFFResult#paths][3]
+- [CreateIFFResult#join][4]
+- [CreateIFFResult#addFixtures][5]
+  - [Parameters][6]
+- [CreateIFFResult#rmRootDir][7]
+- [CreateIFFResult#rmFixtures][8]
+- [CreateIFFResult#rootDir][9]
+- [CreateIFFOptions#rootDir][10]
+- [AddFixturesResult#paths][11]
 
 ### createIFF
 
@@ -100,27 +99,25 @@ Create fixtures in the specified directory.
 The path separator must be in POSIX format (`/`).
 Use of Windows path separator is an undefined behavior.
 
+```ts
+const iff = await createIFF(
+  {
+    'a.txt': 'a',
+    'b': {
+      'a.txt': 'b-a',
+    },
+    'c/a/a.txt': 'c-a-a',
+  },
+  fixturesDir,
+);
+```
+
 #### Parameters
 
 - `directory` **T** The definition of fixtures to be created.
 - `options` **CreateIFFOptions** Options for creating fixtures.
 
-#### Examples
-
-````javascript
-```ts
-    const iff = await createIFF(
-      {
-      'a.txt': 'a',
-      'b': {
-        'a.txt': 'b-a',
-      },
-      'c/a/a.txt': 'c-a-a',
-    }, fixturesDir);
-    ```;
-````
-
-Returns **[Promise][13]\\&lt;CreateIFFResult\\<T>>** An object that provides functions to manipulate the fixtures.
+Returns **[Promise][12]\\&lt;CreateIFFResult\\<T>>** An object that provides functions to manipulate the fixtures.
 
 ### CreateIFFResult#paths
 
@@ -212,14 +209,13 @@ The paths of the added fixtures.
 
 [1]: #createiff
 [2]: #parameters
-[3]: #examples
-[4]: #createiffresultpaths
-[5]: #createiffresultjoin
-[6]: #createiffresultaddfixtures
-[7]: #parameters-1
-[8]: #createiffresultrmrootdir
-[9]: #createiffresultrmfixtures
-[10]: #createiffresultrootdir
-[11]: #createiffoptionsrootdir
-[12]: #addfixturesresultpaths
-[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[3]: #createiffresultpaths
+[4]: #createiffresultjoin
+[5]: #createiffresultaddfixtures
+[6]: #parameters-1
+[7]: #createiffresultrmrootdir
+[8]: #createiffresultrmfixtures
+[9]: #createiffresultrootdir
+[10]: #createiffoptionsrootdir
+[11]: #addfixturesresultpaths
+[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise

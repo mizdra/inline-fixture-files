@@ -101,7 +101,7 @@ export type CreateIFFOptions = {
  * Create fixtures in the specified directory.
  * The path separator must be in POSIX format (`/`).
  * Use of Windows path separator is an undefined behavior.
- * @example
+ *
  * ```ts
  * const iff = await createIFF(
  *   {
