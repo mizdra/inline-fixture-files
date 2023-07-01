@@ -3,13 +3,13 @@ import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
-type AddFixturesResult<T extends Directory> = {
+type AddFixturesResult<T extends Directory, U extends Directory> = {
   /**
    * The paths of the added fixtures.
    * @see CreateIFFResult#paths
    * @name AddFixturesResult#paths
    */
-  paths: FlattenDirectory<T>;
+  paths: FlattenDirectory<T> & FlattenDirectory<U>;
 };
 
 export type CreateIFFResult<T extends Directory> = {
@@ -83,11 +83,10 @@ export type CreateIFFResult<T extends Directory> = {
   /**
    * Add fixtures to `rootDir`.
    * @param directory The definition of fixtures to be added.
-   * @returns The paths of the added fixtures.
+   * @returns The paths to fixtures created with `createIFF` and added with `CreateIFFResult#addFixtures`.
    * @name CreateIFFResult#addFixtures
-   * @param directory @ignore
    */
-  addFixtures<U extends Directory>(directory: U): Promise<AddFixturesResult<U>>;
+  addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>>;
 };
 
 export type CreateIFFOptions = {
@@ -122,6 +121,7 @@ export async function createIFF<const T extends Directory>(
   options: CreateIFFOptions,
 ): Promise<CreateIFFResult<T>> {
   const rootDir = resolve(options.rootDir); // normalize path
+  const paths = getPaths(directory, rootDir);
 
   function getRealPath(...paths: string[]): string {
     return join(rootDir, ...paths);
@@ -133,9 +133,9 @@ export async function createIFF<const T extends Directory>(
     const files = await readdir(rootDir);
     await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
   }
-  async function addFixtures<U extends Directory>(directory: U): Promise<AddFixturesResult<U>> {
+  async function addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>> {
     await createIFFImpl(directory, rootDir);
-    return { paths: getPaths(directory, rootDir) };
+    return { paths: { ...paths, ...getPaths(directory, rootDir) } };
   }
 
   await createIFFImpl(directory, rootDir);
@@ -146,6 +146,6 @@ export async function createIFF<const T extends Directory>(
     rmRootDir,
     rmFixtures,
     addFixtures,
-    paths: getPaths<T>(directory, rootDir),
+    paths,
   };
 }

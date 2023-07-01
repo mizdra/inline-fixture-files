@@ -1,5 +1,6 @@
 import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { expectType } from 'ts-expect';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { fixtureDir, exists } from './test/util.js';
 import { CreateIFFOptions, createIFF } from './index.js';
@@ -116,5 +117,42 @@ describe('CreateIFFResult', () => {
     expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
     expect(await readFile(iff.join('b/b.txt'), 'utf-8')).toMatchInlineSnapshot('"b-b"');
     expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
+  });
+});
+
+describe('AddFixturesResult', () => {
+  test('paths', async () => {
+    const iff = await createIFF(
+      {
+        'a.txt': 'a',
+        'b': {
+          'a.txt': 'b-a',
+        },
+      },
+      options,
+    );
+    const { paths } = await iff.addFixtures({
+      'b': {
+        'b.txt': 'b-b',
+      },
+      'c.txt': 'c',
+    });
+    expect(paths).toStrictEqual({
+      'a.txt': join(fixtureDir, 'a.txt'),
+      'b': join(fixtureDir, 'b'),
+      'b/a.txt': join(fixtureDir, 'b/a.txt'),
+      'b/b.txt': join(fixtureDir, 'b/b.txt'),
+      'c.txt': join(fixtureDir, 'c.txt'),
+    });
+    expectType<{
+      'a.txt': string;
+      'b': string;
+      'b/a.txt': string;
+      'b/b.txt': string;
+      'c.txt': string;
+    }>(paths);
+    // @ts-expect-error
+    // eslint-disable-next-line no-unused-expressions
+    paths['d.txt'];
   });
 });
