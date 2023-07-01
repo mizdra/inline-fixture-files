@@ -183,9 +183,8 @@ Add fixtures to `rootDir`.
 #### Parameters
 
 - `directory` The definition of fixtures to be added.
-- `directory` @ignore
 
-Returns **any** The paths of the added fixtures.
+Returns **any** The paths to fixtures created with `createIFF` and added with `CreateIFFResult#addFixtures`.
 
 ### CreateIFFResult#rmRootDir
 
