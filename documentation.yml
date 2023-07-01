@@ -3,6 +3,7 @@ toc:
   - CreateIFFResult#paths
   - CreateIFFResult#join
   - CreateIFFResult#addFixtures
+  - CreateIFFResult#fork
   - CreateIFFResult#rmRootDir
   - CreateIFFResult#rmFixtures
   - CreateIFFResult#rootDir

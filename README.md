@@ -87,11 +87,14 @@ test('eslint reports lint errors', async () => {
 - [CreateIFFResult#join][4]
 - [CreateIFFResult#addFixtures][5]
   - [Parameters][6]
-- [CreateIFFResult#rmRootDir][7]
-- [CreateIFFResult#rmFixtures][8]
-- [CreateIFFResult#rootDir][9]
-- [CreateIFFOptions#rootDir][10]
-- [AddFixturesResult#paths][11]
+- [CreateIFFResult#fork][7]
+  - [Parameters][8]
+- [CreateIFFResult#rmRootDir][9]
+- [CreateIFFResult#rmFixtures][10]
+- [CreateIFFResult#rootDir][11]
+- [CreateIFFOptions#rootDir][12]
+- [AddFixturesResult#paths][13]
+- [AddFixturesResult#paths][14]
 
 ### createIFF
 
@@ -117,7 +120,7 @@ const iff = await createIFF(
 - `directory` **T** The definition of fixtures to be created.
 - `options` **CreateIFFOptions** Options for creating fixtures.
 
-Returns **[Promise][12]\\&lt;CreateIFFResult\\<T>>** An object that provides functions to manipulate the fixtures.
+Returns **[Promise][15]\\&lt;CreateIFFResult\\<T>>** An object that provides functions to manipulate the fixtures.
 
 ### CreateIFFResult#paths
 
@@ -183,6 +186,45 @@ Add fixtures to `rootDir`.
 
 Returns **any** The paths to fixtures created with `createIFF` and added with `CreateIFFResult#addFixtures`.
 
+### CreateIFFResult#fork
+
+Change the root directory and take over the fixture you created.
+
+Internally, first a new root directory is created, and then the fixtures from the old root directory are copied into it.
+Finally, the fixtures specified in `additionalDirectory` are added to the new root directory.
+
+The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write,
+then a fallback copy mechanism is used.
+
+Example:
+
+```ts
+const baseIff = await createIFF({
+  'a.txt': 'a',
+  'b/a.txt': 'b-a',
+  },
+}, { rootDir: baseRootDir });
+const forkedIff = await baseIff.fork({
+  'b/b.txt': 'b-b',
+  'c.txt': 'c',
+}, { rootDir: forkedRootDir });
+
+// `forkedIff` inherits fixtures from `baseIff`.
+expect(await readFile(join(forkedRootDir, 'a.txt'), 'utf-8')).toBe('a');
+expect(await readFile(join(forkedRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+expect(await readFile(join(forkedRootDir, 'b/b.txt'), 'utf-8')).toBe('b-b');
+expect(await readFile(join(forkedRootDir, 'c.txt'), 'utf-8')).toBe('c');
+
+// The `baseIff` fixtures are left in place.
+expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toBe('a');
+expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+```
+
+#### Parameters
+
+- `additionalDirectory` The definition of fixtures to be added.
+- `options` Options for creating fixtures.
+
 ### CreateIFFResult#rmRootDir
 
 Delete `rootDir`.
@@ -207,15 +249,24 @@ Root directory for fixtures.
 
 The paths of the added fixtures.
 
+### AddFixturesResult#paths
+
+- **See**: CreateIFFResult#paths
+
+The paths of the added fixtures.
+
 [1]: #createiff
 [2]: #parameters
 [3]: #createiffresultpaths
 [4]: #createiffresultjoin
 [5]: #createiffresultaddfixtures
 [6]: #parameters-1
-[7]: #createiffresultrmrootdir
-[8]: #createiffresultrmfixtures
-[9]: #createiffresultrootdir
-[10]: #createiffoptionsrootdir
-[11]: #addfixturesresultpaths
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[7]: #createiffresultfork
+[8]: #parameters-2
+[9]: #createiffresultrmrootdir
+[10]: #createiffresultrmfixtures
+[11]: #createiffresultrootdir
+[12]: #createiffoptionsrootdir
+[13]: #addfixturesresultpaths
+[14]: #addfixturesresultpaths-1
+[15]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
