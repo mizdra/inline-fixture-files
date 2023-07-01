@@ -1,9 +1,27 @@
-import { readdir, rm } from 'node:fs/promises';
+import { constants, cp, readdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
+export type CreateIFFOptions = {
+  /**
+   * Root directory for fixtures.
+   * @name CreateIFFOptions#rootDir
+   */
+  rootDir: string;
+};
+
 type AddFixturesResult<T extends Directory, U extends Directory> = {
+  /**
+   * The paths of the added fixtures.
+   * @see CreateIFFResult#paths
+   * @name AddFixturesResult#paths
+   */
+  paths: FlattenDirectory<T> & FlattenDirectory<U>;
+};
+
+// eslint-disable-next-line no-use-before-define
+type ForkResult<T extends Directory, U extends Directory> = CreateIFFResult<T> & {
   /**
    * The paths of the added fixtures.
    * @see CreateIFFResult#paths
@@ -87,14 +105,43 @@ export type CreateIFFResult<T extends Directory> = {
    * @name CreateIFFResult#addFixtures
    */
   addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>>;
-};
-
-export type CreateIFFOptions = {
   /**
-   * Root directory for fixtures.
-   * @name CreateIFFOptions#rootDir
+   * Change the root directory and take over the fixture you created.
+   *
+   * Internally, first a new root directory is created, and then the fixtures from the old root directory are copied into it.
+   * Finally, the fixtures specified in `additionalDirectory` are added to the new root directory.
+   *
+   * The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write,
+   * then a fallback copy mechanism is used.
+   *
+   * Example:
+   * ```ts
+   * const baseIff = await createIFF({
+   *   'a.txt': 'a',
+   *   'b/a.txt': 'b-a',
+   *   },
+   * }, { rootDir: baseRootDir });
+   * const forkedIff = await baseIff.fork({
+   *   'b/b.txt': 'b-b',
+   *   'c.txt': 'c',
+   * }, { rootDir: forkedRootDir });
+   *
+   * // `forkedIff` inherits fixtures from `baseIff`.
+   * expect(await readFile(join(forkedRootDir, 'a.txt'), 'utf-8')).toBe('a');
+   * expect(await readFile(join(forkedRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+   * expect(await readFile(join(forkedRootDir, 'b/b.txt'), 'utf-8')).toBe('b-b');
+   * expect(await readFile(join(forkedRootDir, 'c.txt'), 'utf-8')).toBe('c');
+   *
+   * // The `baseIff` fixtures are left in place.
+   * expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toBe('a');
+   * expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+   * ```
+   *
+   * @param additionalDirectory The definition of fixtures to be added.
+   * @param options Options for creating fixtures.
+   * @name CreateIFFResult#fork
    */
-  rootDir: string;
+  fork: <const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions) => Promise<ForkResult<T, U>>;
 };
 
 /**
@@ -137,6 +184,15 @@ export async function createIFF<const T extends Directory>(
     await createIFFImpl(directory, rootDir);
     return { paths: { ...paths, ...getPaths(directory, rootDir) } };
   }
+  async function fork<const U extends Directory>(
+    additionalDirectory: U,
+    forkedIffOptions: CreateIFFOptions,
+  ): Promise<ForkResult<T, U>> {
+    const forkedIff = await createIFF({}, forkedIffOptions);
+    await cp(rootDir, forkedIffOptions.rootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
+    const { paths: addedPaths } = await forkedIff.addFixtures(additionalDirectory);
+    return { ...forkedIff, paths: { ...getPaths(directory, forkedIffOptions.rootDir), ...addedPaths } };
+  }
 
   await createIFFImpl(directory, rootDir);
 
@@ -147,5 +203,6 @@ export async function createIFF<const T extends Directory>(
     rmFixtures,
     addFixtures,
     paths,
+    fork,
   };
 }
