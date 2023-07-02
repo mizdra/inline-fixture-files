@@ -20,7 +20,7 @@ addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<
 
 **Returns:**
 
-Promise&lt;AddFixturesResult&lt;T, U&gt;&gt;
+Promise&lt;[AddFixturesResult](./inline-fixture-files.addfixturesresult.md)<!-- -->&lt;T, U&gt;&gt;
 
 The paths to fixtures created with `createIFF` and added with `CreateIFFResult#addFixtures`<!-- -->.
 

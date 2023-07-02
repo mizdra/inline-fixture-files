@@ -14,6 +14,16 @@
 
 |  Interface | Description |
 |  --- | --- |
+|  [AddFixturesResult](./inline-fixture-files.addfixturesresult.md) |  |
 |  [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) |  |
 |  [CreateIFFResult](./inline-fixture-files.createiffresult.md) |  |
+|  [ForkResult](./inline-fixture-files.forkresult.md) |  |
+
+## Type Aliases
+
+|  Type Alias | Description |
+|  --- | --- |
+|  [Directory](./inline-fixture-files.directory.md) |  |
+|  [DirectoryItem](./inline-fixture-files.directoryitem.md) |  |
+|  [FileType](./inline-fixture-files.filetype.md) |  |
 

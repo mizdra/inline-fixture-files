@@ -3,6 +3,8 @@ import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
+export type { Directory, DirectoryItem, FileType } from './create-iff.js';
+
 /** @public */
 export interface CreateIFFOptions {
   /**
@@ -11,7 +13,8 @@ export interface CreateIFFOptions {
   rootDir: string;
 }
 
-interface AddFixturesResult<T extends Directory, U extends Directory> {
+/** @public */
+export interface AddFixturesResult<T extends Directory, U extends Directory> {
   /**
    * The paths of the added fixtures.
    * @see CreateIFFResult#paths
@@ -19,8 +22,9 @@ interface AddFixturesResult<T extends Directory, U extends Directory> {
   paths: FlattenDirectory<T> & FlattenDirectory<U>;
 }
 
+/** @public */
 // eslint-disable-next-line no-use-before-define
-interface ForkResult<T extends Directory, U extends Directory> extends CreateIFFResult<T> {
+export interface ForkResult<T extends Directory, U extends Directory> extends CreateIFFResult<T> {
   /**
    * The paths of the added fixtures.
    * @see CreateIFFResult#paths

@@ -2,11 +2,14 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { sep as sepForPosix } from 'node:path/posix';
 
+/** @public */
 export type FileType = string; // TODO: support `File` class
 
+/** @public */
 // eslint-disable-next-line no-use-before-define
 export type DirectoryItem = FileType | Directory;
 
+/** @public */
 export type Directory = {
   [name: string]: DirectoryItem;
 };
