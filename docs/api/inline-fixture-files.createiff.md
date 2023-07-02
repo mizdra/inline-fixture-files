@@ -4,7 +4,7 @@
 
 ## createIFF() function
 
-Create fixtures in the specified directory. The path separator must be in POSIX format (`/`<!-- -->). Use of Windows path separator is an undefined behavior.
+Create fixtures in the specified directory.
 
 **Signature:**
 
@@ -24,6 +24,10 @@ export declare function createIFF<const T extends Directory>(directory: T, optio
 Promise&lt;[CreateIFFResult](./inline-fixture-files.createiffresult.md)<!-- -->&lt;T&gt;&gt;
 
 An object that provides functions to manipulate the fixtures.
+
+## Remarks
+
+The path must be in POSIX-style (`'dir/file.txt'`<!-- -->). Use of Windows-style path (`'dir\\file.txt'`<!-- -->) is an undefined behavior.
 
 ## Example
 

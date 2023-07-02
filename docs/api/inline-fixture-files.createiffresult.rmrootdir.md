@@ -4,7 +4,7 @@
 
 ## CreateIFFResult.rmRootDir() method
 
-Delete `rootDir`<!-- -->.
+Delete [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->.
 
 **Signature:**
 

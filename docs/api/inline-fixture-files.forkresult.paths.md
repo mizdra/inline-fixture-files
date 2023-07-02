@@ -4,7 +4,7 @@
 
 ## ForkResult.paths property
 
-The paths of the added fixtures.
+The paths to fixtures created with [createIFF()](./inline-fixture-files.createiff.md) and added with [CreateIFFResult.fork()](./inline-fixture-files.createiffresult.fork.md)<!-- -->. See [CreateIFFResult.paths](./inline-fixture-files.createiffresult.paths.md) for details.
 
 **Signature:**
 

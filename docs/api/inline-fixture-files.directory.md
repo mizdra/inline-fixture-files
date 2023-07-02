@@ -4,9 +4,22 @@
 
 ## Directory interface
 
-
 **Signature:**
 
 ```typescript
 export interface Directory 
 ```
+
+## Example
+
+
+```ts
+const directory: Directory = {
+ 'a.txt': 'a',
+  'b': {
+    'a.txt': 'b-a',
+  },
+  'c/a/a.txt': 'c-a-a',
+};
+```
+

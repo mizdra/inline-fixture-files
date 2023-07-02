@@ -4,6 +4,7 @@
 
 ## ForkResult interface
 
+The return of [CreateIFFResult.fork()](./inline-fixture-files.createiffresult.fork.md)<!-- -->.
 
 **Signature:**
 
@@ -16,5 +17,5 @@ export interface ForkResult<T extends Directory, U extends Directory> extends Cr
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [paths](./inline-fixture-files.forkresult.paths.md) |  | FlattenDirectory&lt;T&gt; &amp; FlattenDirectory&lt;U&gt; | The paths of the added fixtures. |
+|  [paths](./inline-fixture-files.forkresult.paths.md) |  | FlattenDirectory&lt;T&gt; &amp; FlattenDirectory&lt;U&gt; | The paths to fixtures created with [createIFF()](./inline-fixture-files.createiff.md) and added with [CreateIFFResult.fork()](./inline-fixture-files.createiffresult.fork.md)<!-- -->. See [CreateIFFResult.paths](./inline-fixture-files.createiffresult.paths.md) for details. |
 

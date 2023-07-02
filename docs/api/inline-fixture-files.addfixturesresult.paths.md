@@ -4,7 +4,7 @@
 
 ## AddFixturesResult.paths property
 
-The paths of the added fixtures.
+The paths to fixtures created with [createIFF()](./inline-fixture-files.createiff.md) and added with [CreateIFFResult.addFixtures()](./inline-fixture-files.createiffresult.addfixtures.md)<!-- -->. See [CreateIFFResult.paths](./inline-fixture-files.createiffresult.paths.md) for details.
 
 **Signature:**
 

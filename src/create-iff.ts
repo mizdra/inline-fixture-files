@@ -9,7 +9,19 @@ export type FileType = string; // TODO: support `File` class
 // eslint-disable-next-line no-use-before-define
 export type DirectoryItem = FileType | Directory;
 
-/** @public */
+/**
+ * @public
+ * @example
+ * ```ts
+ * const directory: Directory = {
+ *  'a.txt': 'a',
+ *   'b': {
+ *     'a.txt': 'b-a',
+ *   },
+ *   'c/a/a.txt': 'c-a-a',
+ * };
+ * ```
+ */
 export interface Directory {
   [name: string]: DirectoryItem;
 }

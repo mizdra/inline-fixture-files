@@ -4,6 +4,7 @@
 
 ## CreateIFFResult interface
 
+The return of [createIFF()](./inline-fixture-files.createiff.md)<!-- -->.
 
 **Signature:**
 
@@ -16,15 +17,15 @@ export interface CreateIFFResult<T extends Directory>
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [paths](./inline-fixture-files.createiffresult.paths.md) |  | FlattenDirectory&lt;T&gt; | The paths of the fixtures. It is useful to get the path of fixtures in type safety. |
-|  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The directory where fixtures are written. This directory is obtained by processing the directory specified in <code>CreateIFFOptions#rootDir</code> using <code>path.resolve</code>. |
+|  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The directory where fixtures are written. This directory is obtained by processing the directory specified in [CreateIFFOptions.rootDir](./inline-fixture-files.createiffoptions.rootdir.md) using <code>path.resolve</code>. |
 
 ## Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to <code>rootDir</code>. |
-|  [fork(additionalDirectory, options)](./inline-fixture-files.createiffresult.fork.md) | <p>Change the root directory and take over the fixture you created.</p><p>Internally, first a new root directory is created, and then the fixtures from the old root directory are copied into it. Finally, the fixtures specified in <code>additionalDirectory</code> are added to the new root directory.</p><p>The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then a fallback copy mechanism is used.</p> |
-|  [join(paths)](./inline-fixture-files.createiffresult.join.md) | Join <code>rootDir</code> and <code>paths</code>. That is, it is equivalent to <code>require('path').join(rootDir, ...paths)</code>. |
-|  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete fixtures under <code>rootDir</code>. |
-|  [rmRootDir()](./inline-fixture-files.createiffresult.rmrootdir.md) | Delete <code>rootDir</code>. |
+|  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
+|  [fork(additionalDirectory, options)](./inline-fixture-files.createiffresult.fork.md) | Change the root directory and take over the fixture you created. |
+|  [join(paths)](./inline-fixture-files.createiffresult.join.md) | Join <code>rootDir</code> and <code>paths</code>. It is equivalent to <code>require('path').join(rootDir, ...paths)</code>. |
+|  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete fixtures under [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
+|  [rmRootDir()](./inline-fixture-files.createiffresult.rmrootdir.md) | Delete [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
 

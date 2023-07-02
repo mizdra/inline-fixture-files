@@ -4,7 +4,7 @@
 
 ## CreateIFFResult.rmFixtures() method
 
-Delete fixtures under `rootDir`<!-- -->.
+Delete fixtures under [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->.
 
 **Signature:**
 

@@ -6,10 +6,6 @@
 
 Change the root directory and take over the fixture you created.
 
-Internally, first a new root directory is created, and then the fixtures from the old root directory are copied into it. Finally, the fixtures specified in `additionalDirectory` are added to the new root directory.
-
-The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then a fallback copy mechanism is used.
-
 **Signature:**
 
 ```typescript
@@ -21,11 +17,17 @@ fork<const U extends Directory>(additionalDirectory: U, options: CreateIFFOption
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  additionalDirectory | U | The definition of fixtures to be added. |
-|  options | [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) | Options for creating fixtures. |
+|  options | [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) | The options for creating fixtures. |
 
 **Returns:**
 
 Promise&lt;[ForkResult](./inline-fixture-files.forkresult.md)<!-- -->&lt;T, U&gt;&gt;
+
+## Remarks
+
+Internally, first a new root directory is created, and then the fixtures from the old root directory are copied into it. Finally, the fixtures specified in `additionalDirectory` are added to the new root directory.
+
+The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then a fallback copy mechanism is used.
 
 ## Example
 

@@ -8,5 +8,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [@mizdra/inline-fixture-files](./inline-fixture-files.md) |  |
+|  [@mizdra/inline-fixture-files](./inline-fixture-files.md) | The utility for writing fixture files inline. |
 

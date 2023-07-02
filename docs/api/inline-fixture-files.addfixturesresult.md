@@ -4,6 +4,7 @@
 
 ## AddFixturesResult interface
 
+The return of [CreateIFFResult.addFixtures()](./inline-fixture-files.createiffresult.addfixtures.md)<!-- -->.
 
 **Signature:**
 
@@ -15,5 +16,5 @@ export interface AddFixturesResult<T extends Directory, U extends Directory>
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [paths](./inline-fixture-files.addfixturesresult.paths.md) |  | FlattenDirectory&lt;T&gt; &amp; FlattenDirectory&lt;U&gt; | The paths of the added fixtures. |
+|  [paths](./inline-fixture-files.addfixturesresult.paths.md) |  | FlattenDirectory&lt;T&gt; &amp; FlattenDirectory&lt;U&gt; | The paths to fixtures created with [createIFF()](./inline-fixture-files.createiff.md) and added with [CreateIFFResult.addFixtures()](./inline-fixture-files.createiffresult.addfixtures.md)<!-- -->. See [CreateIFFResult.paths](./inline-fixture-files.createiffresult.paths.md) for details. |
 

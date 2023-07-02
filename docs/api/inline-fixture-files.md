@@ -4,21 +4,23 @@
 
 ## inline-fixture-files package
 
+The utility for writing fixture files inline.
+
 ## Functions
 
 |  Function | Description |
 |  --- | --- |
-|  [createIFF(directory, options)](./inline-fixture-files.createiff.md) | Create fixtures in the specified directory. The path separator must be in POSIX format (<code>/</code>). Use of Windows path separator is an undefined behavior. |
+|  [createIFF(directory, options)](./inline-fixture-files.createiff.md) | Create fixtures in the specified directory. |
 
 ## Interfaces
 
 |  Interface | Description |
 |  --- | --- |
-|  [AddFixturesResult](./inline-fixture-files.addfixturesresult.md) |  |
-|  [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) |  |
-|  [CreateIFFResult](./inline-fixture-files.createiffresult.md) |  |
+|  [AddFixturesResult](./inline-fixture-files.addfixturesresult.md) | The return of [CreateIFFResult.addFixtures()](./inline-fixture-files.createiffresult.addfixtures.md)<!-- -->. |
+|  [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) | The options for [createIFF()](./inline-fixture-files.createiff.md)<!-- -->. |
+|  [CreateIFFResult](./inline-fixture-files.createiffresult.md) | The return of [createIFF()](./inline-fixture-files.createiff.md)<!-- -->. |
 |  [Directory](./inline-fixture-files.directory.md) |  |
-|  [ForkResult](./inline-fixture-files.forkresult.md) |  |
+|  [ForkResult](./inline-fixture-files.forkresult.md) | The return of [CreateIFFResult.fork()](./inline-fixture-files.createiffresult.fork.md)<!-- -->. |
 
 ## Type Aliases
 

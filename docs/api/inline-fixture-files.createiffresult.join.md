@@ -4,7 +4,7 @@
 
 ## CreateIFFResult.join() method
 
-Join `rootDir` and `paths`<!-- -->. That is, it is equivalent to `require('path').join(rootDir, ...paths)`<!-- -->.
+Join `rootDir` and `paths`<!-- -->. It is equivalent to `require('path').join(rootDir, ...paths)`<!-- -->.
 
 **Signature:**
 

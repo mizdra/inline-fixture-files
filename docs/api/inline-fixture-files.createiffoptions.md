@@ -4,6 +4,7 @@
 
 ## CreateIFFOptions interface
 
+The options for [createIFF()](./inline-fixture-files.createiff.md)<!-- -->.
 
 **Signature:**
 
