@@ -5,17 +5,9 @@ This is a guide for contributors.
 ## How to dev
 
 - `npm run build`: Build for production
-- `npm run dev`: Run for development
 - `npm run lint`: Run static-checking
 - `npm run test`: Run tests
-
-## How to update API documentation
-
-```bash
-documentation build src/index.ts --parse-extension ts -f md -c documentation.yml \
-  | add-text-to-markdown README.md --section "API documentation" --write \
-  && npm run lint:prettier -- --write
-```
+- `npm run update-api-documentation`: Update API documentation
 
 ## How to release
 

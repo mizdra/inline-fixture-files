@@ -2,14 +2,29 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { sep as sepForPosix } from 'node:path/posix';
 
+/** @public */
 export type FileType = string; // TODO: support `File` class
 
+/** @public */
 // eslint-disable-next-line no-use-before-define
 export type DirectoryItem = FileType | Directory;
 
-export type Directory = {
+/**
+ * @public
+ * @example
+ * ```ts
+ * const directory: Directory = {
+ *  'a.txt': 'a',
+ *   'b': {
+ *     'a.txt': 'b-a',
+ *   },
+ *   'c/a/a.txt': 'c-a-a',
+ * };
+ * ```
+ */
+export interface Directory {
   [name: string]: DirectoryItem;
-};
+}
 
 export function isFile(item: DirectoryItem): item is FileType {
   return typeof item === 'string';

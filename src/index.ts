@@ -1,46 +1,67 @@
+/**
+ * @packageDocumentation
+ * The utility for writing fixture files inline.
+ */
+
 import { constants, cp, readdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
-export type CreateIFFOptions = {
+export type { Directory, DirectoryItem, FileType } from './create-iff.js';
+
+/**
+ * The options for {@link createIFF}.
+ * @public
+ */
+export interface CreateIFFOptions {
   /**
    * Root directory for fixtures.
-   * @name CreateIFFOptions#rootDir
    */
   rootDir: string;
-};
+}
 
-type AddFixturesResult<T extends Directory, U extends Directory> = {
+/**
+ * The return of {@link CreateIFFResult.addFixtures}.
+ * @public
+ */
+export interface AddFixturesResult<T extends Directory, U extends Directory> {
   /**
-   * The paths of the added fixtures.
-   * @see CreateIFFResult#paths
-   * @name AddFixturesResult#paths
+   * The paths to fixtures created with {@link createIFF} and added with {@link CreateIFFResult.addFixtures}.
+   * See {@link CreateIFFResult.paths} for details.
    */
   paths: FlattenDirectory<T> & FlattenDirectory<U>;
-};
+}
 
+/**
+ * The return of {@link CreateIFFResult.fork}.
+ * @public
+ */
 // eslint-disable-next-line no-use-before-define
-type ForkResult<T extends Directory, U extends Directory> = CreateIFFResult<T> & {
+export interface ForkResult<T extends Directory, U extends Directory> extends CreateIFFResult<T> {
   /**
-   * The paths of the added fixtures.
-   * @see CreateIFFResult#paths
-   * @name AddFixturesResult#paths
+   * The paths to fixtures created with {@link createIFF} and added with {@link CreateIFFResult.fork}.
+   * See {@link CreateIFFResult.paths} for details.
    */
   paths: FlattenDirectory<T> & FlattenDirectory<U>;
-};
+}
 
-export type CreateIFFResult<T extends Directory> = {
+/**
+ * The return of {@link createIFF}.
+ * @public
+ */
+export interface CreateIFFResult<T extends Directory> {
   /**
    * The directory where fixtures are written.
-   * This directory is obtained by processing the directory specified in `CreateIFFOptions#rootDir`
+   * This directory is obtained by processing the directory specified in {@link CreateIFFOptions.rootDir}
    * using `path.resolve`.
-   * @name CreateIFFResult#rootDir
    */
   rootDir: string;
   /**
-   * The paths of the fixtures.
-   * For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === iff.join('a.txt')`.
+   * The paths of the fixtures. It is useful to get the path of fixtures in type safety.
+   *
+   * @example
+   * For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === join(fixturesDir, 'a.txt')`.
    *
    * ```ts
    * const iff = await createIFF({
@@ -51,12 +72,12 @@ export type CreateIFFResult<T extends Directory> = {
    *   'c/a/a.txt': 'c-a-a',
    * }, fixturesDir);
    * expect(iff.paths).toStrictEqual({
-   *   'a.txt': iff.join('a.txt'),
-   *   'b': iff.join('b'),
-   *   'b/a.txt': iff.join('b/a.txt'),
-   *   'c': iff.join('c'),
-   *   'c/a': iff.join('c/a'),
-   *   'c/a/a.txt': iff.join('c/a/a.txt'),
+   *   'a.txt': join(fixturesDir, 'a.txt'),
+   *   'b': join(fixturesDir, 'b'),
+   *   'b/a.txt': join(fixturesDir, 'b/a.txt'),
+   *   'c': join(fixturesDir, 'c'),
+   *   'c/a': join(fixturesDir, 'c/a'),
+   *   'c/a/a.txt': join(fixturesDir, 'c/a/a.txt'),
    * });
    * ```
    *
@@ -79,42 +100,45 @@ export type CreateIFFResult<T extends Directory> = {
    *   'b/a.txt': string;
    * }>(iff.paths);
    * ```
-   * @name CreateIFFResult#paths
    */
   paths: FlattenDirectory<T>;
   /**
-   * Join `rootDir` and `paths`.
-   * That is, it is equivalent to `require('path').join(rootDir, ...paths)`.
-   * @name CreateIFFResult#join
+   * Join `rootDir` and `paths`. It is equivalent to `require('path').join(rootDir, ...paths)`.
+   *
+   * @example
+   * This is useful for generating paths to files not created by `createIFF`.
+   *
+   * ```ts
+   * const iff = await createIFF({ 'a.txt': 'a' }, fixturesDir);
+   * expect(iff.join('a.txt')).toBe(join(fixturesDir, 'a.txt'));
+   * expect(iff.join('non-existent.txt')).toBe(join(fixturesDir, 'non-existent.txt'));
+   * ```
    */
-  join: (...paths: string[]) => string;
+  join(...paths: string[]): string;
   /**
-   * Delete `rootDir`.
-   * @name CreateIFFResult#rmRootDir
+   * Delete {@link CreateIFFOptions.rootDir | rootDir}.
    */
-  rmRootDir: () => Promise<void>;
+  rmRootDir(): Promise<void>;
   /**
-   * Delete fixtures under `rootDir`.
-   * @name CreateIFFResult#rmFixtures
+   * Delete fixtures under {@link CreateIFFOptions.rootDir | rootDir}.
    */
-  rmFixtures: () => Promise<void>;
+  rmFixtures(): Promise<void>;
   /**
-   * Add fixtures to `rootDir`.
-   * @param directory The definition of fixtures to be added.
-   * @returns The paths to fixtures created with `createIFF` and added with `CreateIFFResult#addFixtures`.
-   * @name CreateIFFResult#addFixtures
+   * Add fixtures to {@link CreateIFFOptions.rootDir | rootDir}.
+   * @param additionalDirectory - The definition of fixtures to be added.
    */
-  addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>>;
+  addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>>;
   /**
    * Change the root directory and take over the fixture you created.
    *
+   * @remarks
    * Internally, first a new root directory is created, and then the fixtures from the old root directory are copied into it.
    * Finally, the fixtures specified in `additionalDirectory` are added to the new root directory.
    *
    * The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write,
    * then a fallback copy mechanism is used.
    *
-   * Example:
+   * @example
    * ```ts
    * const baseIff = await createIFF({
    *   'a.txt': 'a',
@@ -136,19 +160,20 @@ export type CreateIFFResult<T extends Directory> = {
    * expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toBe('a');
    * expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
    * ```
-   *
-   * @param additionalDirectory The definition of fixtures to be added.
-   * @param options Options for creating fixtures.
-   * @name CreateIFFResult#fork
+   * @param additionalDirectory - The definition of fixtures to be added.
+   * @param options -  The options for creating fixtures.
    */
-  fork: <const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions) => Promise<ForkResult<T, U>>;
-};
+  fork<const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions): Promise<ForkResult<T, U>>;
+}
 
 /**
  * Create fixtures in the specified directory.
- * The path separator must be in POSIX format (`/`).
- * Use of Windows path separator is an undefined behavior.
  *
+ * @remarks
+ * The path must be in POSIX-style (`'dir/file.txt'`).
+ * Use of Windows-style path (`'dir\\file.txt'`) is an undefined behavior.
+ *
+ * @example
  * ```ts
  * const iff = await createIFF(
  *   {
@@ -158,10 +183,14 @@ export type CreateIFFResult<T extends Directory> = {
  *   },
  *   'c/a/a.txt': 'c-a-a',
  * }, fixturesDir);
+ * expect(await readFile(join(fixturesDir, 'a.txt'), 'utf-8')).toBe('a');
+ * expect(await readFile(join(fixturesDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+ * expect(await readFile(join(fixturesDir, 'c/a/a.txt'), 'utf-8')).toBe('c-a-a');
  * ```
- * @param directory The definition of fixtures to be created.
- * @param options Options for creating fixtures.
+ * @param directory - The definition of fixtures to be created.
+ * @param options - Options for creating fixtures.
  * @returns An object that provides functions to manipulate the fixtures.
+ * @public
  */
 export async function createIFF<const T extends Directory>(
   directory: T,
@@ -180,9 +209,9 @@ export async function createIFF<const T extends Directory>(
     const files = await readdir(rootDir);
     await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
   }
-  async function addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>> {
-    await createIFFImpl(directory, rootDir);
-    return { paths: { ...paths, ...getPaths(directory, rootDir) } };
+  async function addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>> {
+    await createIFFImpl(additionalDirectory, rootDir);
+    return { paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
   }
   async function fork<const U extends Directory>(
     additionalDirectory: U,

@@ -1,1 +1,4 @@
 /dist
+/tsdoc-metadata.json
+/temp
+/docs/api
