@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { fixtureDir, exists } from './test/util.js';
-import { CreateIFFOptions, createIFF } from './index.js';
+import { createIFF, CreateIFFOptions } from './index.js';
 
 const options = {
   rootDir: fixtureDir,
@@ -118,6 +118,23 @@ describe('CreateIFFResult', () => {
     expect(await readFile(iff.join('b/b.txt'), 'utf-8')).toMatchInlineSnapshot('"b-b"');
     expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
   });
+  test('fork', async () => {
+    const baseRootDir = join(fixtureDir, 'base');
+    const forkedRootDir = join(fixtureDir, 'forked');
+    const baseIff = await createIFF({ 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } }, { rootDir: baseRootDir });
+
+    await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { rootDir: forkedRootDir });
+
+    // `forkedIff` inherits fixtures from `baseIff`.
+    expect(await readFile(join(forkedRootDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
+    expect(await readFile(join(forkedRootDir, 'b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+    expect(await readFile(join(forkedRootDir, 'b/b.txt'), 'utf-8')).toMatchInlineSnapshot('"b-b"');
+    expect(await readFile(join(forkedRootDir, 'c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
+
+    // The `baseIff` fixtures are left in place.
+    expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
+    expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+  });
 });
 
 describe('AddFixturesResult', () => {
@@ -155,4 +172,32 @@ describe('AddFixturesResult', () => {
     // eslint-disable-next-line no-unused-expressions
     paths['d.txt'];
   });
+});
+
+test('ForkResult', async () => {
+  const baseRootDir = join(fixtureDir, 'base');
+  const forkedRootDir = join(fixtureDir, 'forked');
+  const baseIff = await createIFF({ 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } }, { rootDir: baseRootDir });
+
+  const forkedIff = await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { rootDir: forkedRootDir });
+
+  expect(forkedIff.rootDir).toBe(forkedRootDir);
+
+  expect(forkedIff.paths).toStrictEqual({
+    'a.txt': join(forkedRootDir, 'a.txt'),
+    'b': join(forkedRootDir, 'b'),
+    'b/a.txt': join(forkedRootDir, 'b/a.txt'),
+    'b/b.txt': join(forkedRootDir, 'b/b.txt'),
+    'c.txt': join(forkedRootDir, 'c.txt'),
+  });
+  expectType<{
+    'a.txt': string;
+    'b': string;
+    'b/a.txt': string;
+    'b/b.txt': string;
+    'c.txt': string;
+  }>(forkedIff.paths);
+  // @ts-expect-error
+  // eslint-disable-next-line no-unused-expressions
+  forkedIff.paths['d.txt'];
 });
