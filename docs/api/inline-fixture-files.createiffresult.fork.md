@@ -2,7 +2,7 @@
 
 [Home](./index.md) &gt; [@mizdra/inline-fixture-files](./inline-fixture-files.md) &gt; [CreateIFFResult](./inline-fixture-files.createiffresult.md) &gt; [fork](./inline-fixture-files.createiffresult.fork.md)
 
-## CreateIFFResult.fork property
+## CreateIFFResult.fork() method
 
 Change the root directory and take over the fixture you created.
 
@@ -13,8 +13,19 @@ The copy operation will attempt to create a copy-on-write reflink. If the platfo
 **Signature:**
 
 ```typescript
-fork: <const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions) => Promise<ForkResult<T, U>>;
+fork<const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions): Promise<ForkResult<T, U>>;
 ```
+
+## Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  additionalDirectory | U | The definition of fixtures to be added. |
+|  options | [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) | Options for creating fixtures. |
+
+**Returns:**
+
+Promise&lt;[ForkResult](./inline-fixture-files.forkresult.md)<!-- -->&lt;T, U&gt;&gt;
 
 ## Example
 

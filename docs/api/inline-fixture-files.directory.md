@@ -2,15 +2,11 @@
 
 [Home](./index.md) &gt; [@mizdra/inline-fixture-files](./inline-fixture-files.md) &gt; [Directory](./inline-fixture-files.directory.md)
 
-## Directory type
+## Directory interface
 
 
 **Signature:**
 
 ```typescript
-export type Directory = {
-    [name: string]: DirectoryItem;
-};
+export interface Directory 
 ```
-**References:** [DirectoryItem](./inline-fixture-files.directoryitem.md)
-

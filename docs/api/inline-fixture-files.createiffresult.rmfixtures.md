@@ -2,12 +2,16 @@
 
 [Home](./index.md) &gt; [@mizdra/inline-fixture-files](./inline-fixture-files.md) &gt; [CreateIFFResult](./inline-fixture-files.createiffresult.md) &gt; [rmFixtures](./inline-fixture-files.createiffresult.rmfixtures.md)
 
-## CreateIFFResult.rmFixtures property
+## CreateIFFResult.rmFixtures() method
 
 Delete fixtures under `rootDir`<!-- -->.
 
 **Signature:**
 
 ```typescript
-rmFixtures: () => Promise<void>;
+rmFixtures(): Promise<void>;
 ```
+**Returns:**
+
+Promise&lt;void&gt;
+

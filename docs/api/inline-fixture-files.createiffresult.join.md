@@ -2,15 +2,25 @@
 
 [Home](./index.md) &gt; [@mizdra/inline-fixture-files](./inline-fixture-files.md) &gt; [CreateIFFResult](./inline-fixture-files.createiffresult.md) &gt; [join](./inline-fixture-files.createiffresult.join.md)
 
-## CreateIFFResult.join property
+## CreateIFFResult.join() method
 
 Join `rootDir` and `paths`<!-- -->. That is, it is equivalent to `require('path').join(rootDir, ...paths)`<!-- -->.
 
 **Signature:**
 
 ```typescript
-join: (...paths: string[]) => string;
+join(...paths: string[]): string;
 ```
+
+## Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  paths | string\[\] |  |
+
+**Returns:**
+
+string
 
 ## Example
 

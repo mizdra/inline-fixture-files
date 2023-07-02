@@ -2,12 +2,16 @@
 
 [Home](./index.md) &gt; [@mizdra/inline-fixture-files](./inline-fixture-files.md) &gt; [CreateIFFResult](./inline-fixture-files.createiffresult.md) &gt; [rmRootDir](./inline-fixture-files.createiffresult.rmrootdir.md)
 
-## CreateIFFResult.rmRootDir property
+## CreateIFFResult.rmRootDir() method
 
 Delete `rootDir`<!-- -->.
 
 **Signature:**
 
 ```typescript
-rmRootDir: () => Promise<void>;
+rmRootDir(): Promise<void>;
 ```
+**Returns:**
+
+Promise&lt;void&gt;
+
