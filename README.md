@@ -11,7 +11,8 @@ $ npm i -D @mizdra/inline-fixture-files
 ## Features
 
 - Write fixture files inline
-- TypeScript support
+- Type-safe access to the fixture file path
+- Share fixture files between test cases
 - Cross-platform support
 - Zero dependencies
 
