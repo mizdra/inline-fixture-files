@@ -98,15 +98,15 @@ export interface CreateIFFResult<T extends Directory> {
    * expect(iff.join('non-existent.txt')).toBe(join(fixturesDir, 'non-existent.txt'));
    * ```
    */
-  join: (...paths: string[]) => string;
+  join(...paths: string[]): string;
   /**
    * Delete `rootDir`.
    */
-  rmRootDir: () => Promise<void>;
+  rmRootDir(): Promise<void>;
   /**
    * Delete fixtures under `rootDir`.
    */
-  rmFixtures: () => Promise<void>;
+  rmFixtures(): Promise<void>;
   /**
    * Add fixtures to `rootDir`.
    * @param directory - The definition of fixtures to be added.
@@ -147,7 +147,7 @@ export interface CreateIFFResult<T extends Directory> {
    * @param additionalDirectory - The definition of fixtures to be added.
    * @param options -  Options for creating fixtures.
    */
-  fork: <const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions) => Promise<ForkResult<T, U>>;
+  fork<const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions): Promise<ForkResult<T, U>>;
 }
 
 /**

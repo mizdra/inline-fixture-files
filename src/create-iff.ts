@@ -10,9 +10,9 @@ export type FileType = string; // TODO: support `File` class
 export type DirectoryItem = FileType | Directory;
 
 /** @public */
-export type Directory = {
+export interface Directory {
   [name: string]: DirectoryItem;
-};
+}
 
 export function isFile(item: DirectoryItem): item is FileType {
   return typeof item === 'string';
