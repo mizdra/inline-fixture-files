@@ -9,14 +9,14 @@ Add fixtures to `rootDir`<!-- -->.
 **Signature:**
 
 ```typescript
-addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>>;
+addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  directory | U | The definition of fixtures to be added. |
+|  additionalDirectory | U | The definition of fixtures to be added. |
 
 **Returns:**
 

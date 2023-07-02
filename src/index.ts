@@ -109,10 +109,10 @@ export interface CreateIFFResult<T extends Directory> {
   rmFixtures(): Promise<void>;
   /**
    * Add fixtures to `rootDir`.
-   * @param directory - The definition of fixtures to be added.
+   * @param additionalDirectory - The definition of fixtures to be added.
    * @returns The paths to fixtures created with `createIFF` and added with `CreateIFFResult#addFixtures`.
    */
-  addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>>;
+  addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>>;
   /**
    * Change the root directory and take over the fixture you created.
    *
@@ -191,9 +191,9 @@ export async function createIFF<const T extends Directory>(
     const files = await readdir(rootDir);
     await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
   }
-  async function addFixtures<const U extends Directory>(directory: U): Promise<AddFixturesResult<T, U>> {
-    await createIFFImpl(directory, rootDir);
-    return { paths: { ...paths, ...getPaths(directory, rootDir) } };
+  async function addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>> {
+    await createIFFImpl(additionalDirectory, rootDir);
+    return { paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
   }
   async function fork<const U extends Directory>(
     additionalDirectory: U,

@@ -22,7 +22,7 @@ export interface CreateIFFResult<T extends Directory>
 
 |  Method | Description |
 |  --- | --- |
-|  [addFixtures(directory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to <code>rootDir</code>. |
+|  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to <code>rootDir</code>. |
 |  [fork(additionalDirectory, options)](./inline-fixture-files.createiffresult.fork.md) | <p>Change the root directory and take over the fixture you created.</p><p>Internally, first a new root directory is created, and then the fixtures from the old root directory are copied into it. Finally, the fixtures specified in <code>additionalDirectory</code> are added to the new root directory.</p><p>The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then a fallback copy mechanism is used.</p> |
 |  [join(paths)](./inline-fixture-files.createiffresult.join.md) | Join <code>rootDir</code> and <code>paths</code>. That is, it is equivalent to <code>require('path').join(rootDir, ...paths)</code>. |
 |  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete fixtures under <code>rootDir</code>. |
