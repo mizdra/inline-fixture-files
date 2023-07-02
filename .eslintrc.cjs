@@ -15,6 +15,10 @@ module.exports = {
     {
       files: ['*.ts', '*.tsx', '*.cts', '*.mts'],
       extends: ['@mizdra/mizdra/+typescript', '@mizdra/mizdra/+prettier'],
+      plugins: ['eslint-plugin-tsdoc'],
+      rules: {
+        'tsdoc/syntax': 'error',
+      },
     },
   ],
 };
