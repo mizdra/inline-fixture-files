@@ -17,12 +17,14 @@
     }
   },
   "scripts": {
+    "prebuild": "node -e 'require(\"fs\").rmSync(\"./dist\", { recursive: true })'",
     "build": "tsc -p tsconfig.build.json",
     "lint": "run-s -c lint:*",
     "lint:tsc": "tsc",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier --check .",
-    "test": "vitest"
+    "test": "vitest",
+    "update-api-documentation": "npm run build && api-extractor run --local --verbose && api-documenter markdown -i ./temp -o ./docs/api"
   },
   "prettier": "@mizdra/prettier-config-mizdra",
   "devDependencies": {
