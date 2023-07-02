@@ -12,7 +12,7 @@ type RemoveIndexSignature<Type> = {
 type FiniteStringKeyOf<T> = keyof RemoveIndexSignature<T>;
 
 /**
- * Utility type that converts { 'file-1.txt': string, 'dir-1/dir-2': { 'file-2.txt': string } }
+ * Utility type that converts `{ 'file-1.txt': string, 'dir-1/dir-2': { 'file-2.txt': string } }`
  * to 'file-1.txt' | 'dir-1/dir-2/file-2.txt'.
  */
 type FlattenDirectoryObjectKeys<T extends Record<string, unknown>, Key = FiniteStringKeyOf<T>> = Key extends string
@@ -21,7 +21,7 @@ type FlattenDirectoryObjectKeys<T extends Record<string, unknown>, Key = FiniteS
     : `${Key}`
   : never;
 
-/** Utility type that converts 'dir-1/dir2/file-1.txt' to 'dir-1' | 'dir-1/dir2' | 'dir-1/dir2/file-1.txt'. */
+/** Utility type that converts `'dir-1/dir2/file-1.txt' to 'dir-1' | 'dir-1/dir2' | 'dir-1/dir2/file-1.txt'`. */
 type SelfAndUpperPath<T extends string, Prefix extends string = ''> = T extends `${infer First}/${infer Rest}`
   ? `${Prefix}${First}` | SelfAndUpperPath<Rest, `${Prefix}${First}/`>
   : `${Prefix}${T}`;
