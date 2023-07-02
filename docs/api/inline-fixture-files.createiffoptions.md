@@ -2,13 +2,18 @@
 
 [Home](./index.md) &gt; [@mizdra/inline-fixture-files](./inline-fixture-files.md) &gt; [CreateIFFOptions](./inline-fixture-files.createiffoptions.md)
 
-## CreateIFFOptions type
+## CreateIFFOptions interface
 
 
 **Signature:**
 
 ```typescript
-export type CreateIFFOptions = {
-    rootDir: string;
-};
+export interface CreateIFFOptions 
 ```
+
+## Properties
+
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [rootDir](./inline-fixture-files.createiffoptions.rootdir.md) |  | string | Root directory for fixtures. |
+

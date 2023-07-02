@@ -4,32 +4,32 @@ import { Directory, createIFF as createIFFImpl } from './create-iff.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
 /** @public */
-export type CreateIFFOptions = {
+export interface CreateIFFOptions {
   /**
    * Root directory for fixtures.
    */
   rootDir: string;
-};
+}
 
-type AddFixturesResult<T extends Directory, U extends Directory> = {
+interface AddFixturesResult<T extends Directory, U extends Directory> {
   /**
    * The paths of the added fixtures.
    * @see CreateIFFResult#paths
    */
   paths: FlattenDirectory<T> & FlattenDirectory<U>;
-};
+}
 
 // eslint-disable-next-line no-use-before-define
-type ForkResult<T extends Directory, U extends Directory> = CreateIFFResult<T> & {
+interface ForkResult<T extends Directory, U extends Directory> extends CreateIFFResult<T> {
   /**
    * The paths of the added fixtures.
    * @see CreateIFFResult#paths
    */
   paths: FlattenDirectory<T> & FlattenDirectory<U>;
-};
+}
 
 /** @public */
-export type CreateIFFResult<T extends Directory> = {
+export interface CreateIFFResult<T extends Directory> {
   /**
    * The directory where fixtures are written.
    * This directory is obtained by processing the directory specified in `CreateIFFOptions#rootDir`
@@ -144,7 +144,7 @@ export type CreateIFFResult<T extends Directory> = {
    * @param options -  Options for creating fixtures.
    */
   fork: <const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions) => Promise<ForkResult<T, U>>;
-};
+}
 
 /**
  * Create fixtures in the specified directory.

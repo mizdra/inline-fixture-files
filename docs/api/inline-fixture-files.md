@@ -10,9 +10,9 @@
 |  --- | --- |
 |  [createIFF(directory, options)](./inline-fixture-files.createiff.md) | Create fixtures in the specified directory. The path separator must be in POSIX format (<code>/</code>). Use of Windows path separator is an undefined behavior. |
 
-## Type Aliases
+## Interfaces
 
-|  Type Alias | Description |
+|  Interface | Description |
 |  --- | --- |
 |  [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) |  |
 |  [CreateIFFResult](./inline-fixture-files.createiffresult.md) |  |
