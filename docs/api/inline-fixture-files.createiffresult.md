@@ -24,7 +24,7 @@ export interface CreateIFFResult<Paths extends Record<string, string>>
 |  Method | Description |
 |  --- | --- |
 |  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
-|  [fork(additionalDirectory, options)](./inline-fixture-files.createiffresult.fork.md) | Change the root directory and take over the fixture you created. |
+|  [fork(additionalDirectory, forkOptions)](./inline-fixture-files.createiffresult.fork.md) | Change the root directory and take over the fixture you created. |
 |  [join(paths)](./inline-fixture-files.createiffresult.join.md) | Join <code>rootDir</code> and <code>paths</code>. It is equivalent to <code>require('path').join(rootDir, ...paths)</code>. |
 |  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete fixtures under [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
 |  [rmRootDir()](./inline-fixture-files.createiffresult.rmrootdir.md) | Delete [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |

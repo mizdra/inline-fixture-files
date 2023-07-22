@@ -137,11 +137,11 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
    * expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
    * ```
    * @param additionalDirectory - The definition of fixtures to be added.
-   * @param options -  The options for creating fixtures.
+   * @param forkOptions -  The fork options.
    */
   fork<const U extends Directory>(
     additionalDirectory: U,
-    options: CreateIFFOptions,
+    forkOptions: CreateIFFOptions,
   ): Promise<CreateIFFResult<Paths & FlattenDirectory<U>>>;
 }
 
@@ -195,11 +195,15 @@ export async function createIFF<const T extends Directory>(
       await createIFFImpl(additionalDirectory, rootDir);
       return { ...iff, paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
     },
-    async fork(additionalDirectory, forkedIffOptions) {
-      const forkedIff = await createIFF({}, forkedIffOptions);
-      await cp(rootDir, forkedIffOptions.rootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
+    async fork(additionalDirectory, forkOptions) {
+      if (forkOptions.rootDir === rootDir) {
+        throw new Error('`forkOptions.rootDir` must be different from the `rootDir` passed to `createIFF`.');
+      }
+
+      const forkedIff = await createIFF({}, forkOptions);
+      await cp(rootDir, forkOptions.rootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
       const { paths: addedPaths } = await forkedIff.addFixtures(additionalDirectory);
-      return { ...forkedIff, paths: { ...getPaths(directory, forkedIffOptions.rootDir), ...addedPaths } };
+      return { ...forkedIff, paths: { ...getPaths(directory, forkOptions.rootDir), ...addedPaths } };
     },
   };
 
