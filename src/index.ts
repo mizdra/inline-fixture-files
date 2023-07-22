@@ -101,10 +101,9 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
   /**
    * Add fixtures to {@link CreateIFFOptions.rootDir | rootDir}.
    * @param additionalDirectory - The definition of fixtures to be added.
+   * @returns The {@link CreateIFFResult} with the paths of the added fixtures to {@link CreateIFFResult.paths}.
    */
-  addFixtures<const U extends Directory>(
-    additionalDirectory: U,
-  ): Promise<Pick<CreateIFFResult<Paths & FlattenDirectory<U>>, 'paths'>>;
+  addFixtures<const U extends Directory>(additionalDirectory: U): Promise<CreateIFFResult<Paths & FlattenDirectory<U>>>;
   /**
    * Change the root directory and take over the fixture you created.
    *
@@ -194,7 +193,7 @@ export async function createIFF<const T extends Directory>(
     },
     async addFixtures(additionalDirectory) {
       await createIFFImpl(additionalDirectory, rootDir);
-      return { paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
+      return { ...iff, paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
     },
     async fork(additionalDirectory, forkedIffOptions) {
       const forkedIff = await createIFF({}, forkedIffOptions);
