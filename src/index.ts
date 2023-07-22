@@ -16,7 +16,7 @@ export type { Directory, DirectoryItem, FileType } from './create-iff-impl.js';
  */
 export interface CreateIFFOptions {
   /**
-   * Root directory for fixtures.
+   * The root directory for fixtures.
    */
   rootDir: string;
 }
