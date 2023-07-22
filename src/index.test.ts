@@ -97,26 +97,62 @@ describe('CreateIFFResult', () => {
     await iff.rmRootDir();
     expect(await exists(fixtureDir)).toBe(false);
   });
-  test('addFixtures', async () => {
-    const iff = await createIFF(
-      {
-        'a.txt': 'a',
-        'b': {
-          'a.txt': 'b-a',
+  describe('addFixtures', () => {
+    test('add fixtures', async () => {
+      const iff = await createIFF(
+        {
+          'a.txt': 'a',
+          'b': {
+            'a.txt': 'b-a',
+          },
         },
-      },
-      options,
-    );
-    await iff.addFixtures({
-      'b': {
-        'b.txt': 'b-b',
-      },
-      'c.txt': 'c',
+        options,
+      );
+      await iff.addFixtures({
+        'b': {
+          'b.txt': 'b-b',
+        },
+        'c.txt': 'c',
+      });
+      expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
+      expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+      expect(await readFile(iff.join('b/b.txt'), 'utf-8')).toMatchInlineSnapshot('"b-b"');
+      expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
     });
-    expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
-    expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
-    expect(await readFile(iff.join('b/b.txt'), 'utf-8')).toMatchInlineSnapshot('"b-b"');
-    expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
+    test('return both the paths of the old fixture and the paths of the added fixture', async () => {
+      const iff = await createIFF(
+        {
+          'a.txt': 'a',
+          'b': {
+            'a.txt': 'b-a',
+          },
+        },
+        options,
+      );
+      const { paths } = await iff.addFixtures({
+        'b': {
+          'b.txt': 'b-b',
+        },
+        'c.txt': 'c',
+      });
+      expect(paths).toStrictEqual({
+        'a.txt': join(fixtureDir, 'a.txt'),
+        'b': join(fixtureDir, 'b'),
+        'b/a.txt': join(fixtureDir, 'b/a.txt'),
+        'b/b.txt': join(fixtureDir, 'b/b.txt'),
+        'c.txt': join(fixtureDir, 'c.txt'),
+      });
+      expectType<{
+        'a.txt': string;
+        'b': string;
+        'b/a.txt': string;
+        'b/b.txt': string;
+        'c.txt': string;
+      }>(paths);
+      // @ts-expect-error
+      // eslint-disable-next-line no-unused-expressions
+      paths['d.txt'];
+    });
   });
   test('fork', async () => {
     const baseRootDir = join(fixtureDir, 'base');
@@ -134,43 +170,6 @@ describe('CreateIFFResult', () => {
     // The `baseIff` fixtures are left in place.
     expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
     expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
-  });
-});
-
-describe('AddFixturesResult', () => {
-  test('paths', async () => {
-    const iff = await createIFF(
-      {
-        'a.txt': 'a',
-        'b': {
-          'a.txt': 'b-a',
-        },
-      },
-      options,
-    );
-    const { paths } = await iff.addFixtures({
-      'b': {
-        'b.txt': 'b-b',
-      },
-      'c.txt': 'c',
-    });
-    expect(paths).toStrictEqual({
-      'a.txt': join(fixtureDir, 'a.txt'),
-      'b': join(fixtureDir, 'b'),
-      'b/a.txt': join(fixtureDir, 'b/a.txt'),
-      'b/b.txt': join(fixtureDir, 'b/b.txt'),
-      'c.txt': join(fixtureDir, 'c.txt'),
-    });
-    expectType<{
-      'a.txt': string;
-      'b': string;
-      'b/a.txt': string;
-      'b/b.txt': string;
-      'c.txt': string;
-    }>(paths);
-    // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
-    paths['d.txt'];
   });
 });
 
