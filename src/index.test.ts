@@ -153,6 +153,23 @@ describe('CreateIFFResult', () => {
       // eslint-disable-next-line no-unused-expressions
       paths['d.txt'];
     });
+    test('return the same properties as the old ones, except for paths', async () => {
+      const iff = await createIFF({}, options);
+      const { paths, ...rest } = await iff.addFixtures({});
+      expect(rest).toStrictEqual({
+        rootDir: iff.rootDir,
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        join: iff.join,
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        rmRootDir: iff.rmRootDir,
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        rmFixtures: iff.rmFixtures,
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        addFixtures: iff.addFixtures,
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        fork: iff.fork,
+      });
+    });
   });
   test('fork', async () => {
     const baseRootDir = join(fixtureDir, 'base');
