@@ -43,3 +43,21 @@ jobs:
           cache: 'npm'
       - run: npm install
       - run: npm run test
+
+  check-api-docs-for-missed-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run update-api-docs
+      - run: |
+          if [[ $(git diff --exit-code --quiet) ]]; then
+            echo "No differences found."
+          else
+            echo "API docs are not updated. Please run 'npm run update-api-docs' and commit the changes." >&2
+            exit 1
+          fi
