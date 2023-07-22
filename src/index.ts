@@ -5,10 +5,10 @@
 
 import { constants, cp, readdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { Directory, createIFF as createIFFImpl } from './create-iff.js';
+import { Directory, createIFFImpl } from './create-iff-impl.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
-export type { Directory, DirectoryItem, FileType } from './create-iff.js';
+export type { Directory, DirectoryItem, FileType } from './create-iff-impl.js';
 
 /**
  * The options for {@link createIFF}.

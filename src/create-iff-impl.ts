@@ -30,7 +30,7 @@ export function isFile(item: DirectoryItem): item is FileType {
   return typeof item === 'string';
 }
 
-export async function createIFF(directory: Directory, baseDir: string): Promise<void> {
+export async function createIFFImpl(directory: Directory, baseDir: string): Promise<void> {
   for (const [name, item] of Object.entries(directory)) {
     if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
     if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
@@ -47,7 +47,7 @@ export async function createIFF(directory: Directory, baseDir: string): Promise<
     } else {
       // `item` is directory.
       await mkdir(path, { recursive: true });
-      await createIFF(item, path);
+      await createIFFImpl(item, path);
     }
   }
 }

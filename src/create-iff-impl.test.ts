@@ -1,7 +1,7 @@
 import { readFile, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { beforeEach, expect, test } from 'vitest';
-import { createIFF } from './create-iff.js';
+import { createIFFImpl } from './create-iff-impl.js';
 import { fixtureDir } from './test/util.js';
 
 beforeEach(async () => {
@@ -9,7 +9,7 @@ beforeEach(async () => {
 });
 
 test('basic', async () => {
-  await createIFF(
+  await createIFFImpl(
     {
       'a.txt': 'a',
       'b': {
@@ -23,7 +23,7 @@ test('basic', async () => {
 });
 
 test('create directory with property name containing separator', async () => {
-  await createIFF(
+  await createIFFImpl(
     {
       'a/a.txt': 'a-a',
       'b/a': {
@@ -37,41 +37,41 @@ test('create directory with property name containing separator', async () => {
 });
 
 test('create empty directory with empty object', async () => {
-  await createIFF({ a: {} }, fixtureDir);
+  await createIFFImpl({ a: {} }, fixtureDir);
   const files = await readdir(join(fixtureDir, 'a'));
   expect(files).toEqual([]);
 });
 
 test('throw error when item name starts with separator', async () => {
-  await expect(createIFF({ '/a.txt': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+  await expect(createIFFImpl({ '/a.txt': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not start with separator: /a.txt"',
   );
-  await expect(createIFF({ '/a': {} }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+  await expect(createIFFImpl({ '/a': {} }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not start with separator: /a"',
   );
   // NOTE: Use of Windows path separator is an undefined behavior.
-  await expect(createIFF({ '\\a.txt': 'a' }, fixtureDir)).resolves.not.toThrow();
+  await expect(createIFFImpl({ '\\a.txt': 'a' }, fixtureDir)).resolves.not.toThrow();
 });
 
 test('throw error when item name ends with separator', async () => {
-  await expect(createIFF({ 'a.txt/': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+  await expect(createIFFImpl({ 'a.txt/': 'a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not end with separator: a.txt/"',
   );
-  await expect(createIFF({ 'a/': {} }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+  await expect(createIFFImpl({ 'a/': {} }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not end with separator: a/"',
   );
   // NOTE: Use of Windows path separator is an undefined behavior.
-  await expect(createIFF({ 'a.txt\\': 'a' }, fixtureDir)).resolves.not.toThrow();
+  await expect(createIFFImpl({ 'a.txt\\': 'a' }, fixtureDir)).resolves.not.toThrow();
 });
 
 test('throw error when item name contains consecutive separators', async () => {
-  await expect(createIFF({ 'a//a.txt': 'a--a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
+  await expect(createIFFImpl({ 'a//a.txt': 'a--a' }, fixtureDir)).rejects.toThrowErrorMatchingInlineSnapshot(
     '"Item name must not contain consecutive separators: a//a.txt"',
   );
 });
 
 test('merge creating fixtures for same directory', async () => {
-  await createIFF(
+  await createIFFImpl(
     {
       'a': {},
       'a/a.txt': 'a-a',
@@ -86,7 +86,7 @@ test('merge creating fixtures for same directory', async () => {
 });
 
 test('prefer the later fixture when creating fixtures for same path', async () => {
-  await createIFF(
+  await createIFFImpl(
     {
       'a/a.txt': 'a-a#1',
       'a': {
