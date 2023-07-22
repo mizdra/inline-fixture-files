@@ -7,7 +7,7 @@ This is a guide for contributors.
 - `npm run build`: Build for production
 - `npm run lint`: Run static-checking
 - `npm run test`: Run tests
-- `npm run update-api-documentation`: Update API documentation
+- `npm run update-api-docs`: Update API documentation
 
 ## How to release
 
