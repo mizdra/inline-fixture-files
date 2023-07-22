@@ -179,41 +179,32 @@ export async function createIFF<const T extends Directory>(
   const rootDir = resolve(options.rootDir); // normalize path
   const paths = getPaths(directory, rootDir);
 
-  function getRealPath(...paths: string[]): string {
-    return join(rootDir, ...paths);
-  }
-  async function rmRootDir(): Promise<void> {
-    await rm(rootDir, { recursive: true, force: true });
-  }
-  async function rmFixtures(): Promise<void> {
-    const files = await readdir(rootDir);
-    await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
-  }
-  async function addFixtures<const U extends Directory>(
-    additionalDirectory: U,
-  ): Promise<Pick<CreateIFFResult<FlattenDirectory<T> & FlattenDirectory<U>>, 'paths'>> {
-    await createIFFImpl(additionalDirectory, rootDir);
-    return { paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
-  }
-  async function fork<const U extends Directory>(
-    additionalDirectory: U,
-    forkedIffOptions: CreateIFFOptions,
-  ): Promise<CreateIFFResult<FlattenDirectory<T> & FlattenDirectory<U>>> {
-    const forkedIff = await createIFF({}, forkedIffOptions);
-    await cp(rootDir, forkedIffOptions.rootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
-    const { paths: addedPaths } = await forkedIff.addFixtures(additionalDirectory);
-    return { ...forkedIff, paths: { ...getPaths(directory, forkedIffOptions.rootDir), ...addedPaths } };
-  }
+  const iff: CreateIFFResult<FlattenDirectory<T>> = {
+    rootDir,
+    paths,
+    join(...paths) {
+      return join(rootDir, ...paths);
+    },
+    async rmRootDir() {
+      await rm(rootDir, { recursive: true, force: true });
+    },
+    async rmFixtures() {
+      const files = await readdir(rootDir);
+      await Promise.all(files.map(async (file) => rm(iff.join(file), { recursive: true, force: true })));
+    },
+    async addFixtures(additionalDirectory) {
+      await createIFFImpl(additionalDirectory, rootDir);
+      return { paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
+    },
+    async fork(additionalDirectory, forkedIffOptions) {
+      const forkedIff = await createIFF({}, forkedIffOptions);
+      await cp(rootDir, forkedIffOptions.rootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
+      const { paths: addedPaths } = await forkedIff.addFixtures(additionalDirectory);
+      return { ...forkedIff, paths: { ...getPaths(directory, forkedIffOptions.rootDir), ...addedPaths } };
+    },
+  };
 
   await createIFFImpl(directory, rootDir);
 
-  return {
-    rootDir,
-    join: getRealPath,
-    rmRootDir,
-    rmFixtures,
-    addFixtures,
-    paths,
-    fork,
-  };
+  return iff;
 }
