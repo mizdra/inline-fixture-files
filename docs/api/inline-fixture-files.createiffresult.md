@@ -9,14 +9,14 @@ The return of [createIFF()](./inline-fixture-files.createiff.md)<!-- -->.
 **Signature:**
 
 ```typescript
-export interface CreateIFFResult<T extends Directory> 
+export interface CreateIFFResult<Paths extends Record<string, string>> 
 ```
 
 ## Properties
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [paths](./inline-fixture-files.createiffresult.paths.md) |  | FlattenDirectory&lt;T&gt; | The paths of the fixtures. It is useful to get the path of fixtures in type safety. |
+|  [paths](./inline-fixture-files.createiffresult.paths.md) |  | Paths | The paths of the fixtures. It is useful to get the path of fixtures in type safety. |
 |  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The directory where fixtures are written. This directory is obtained by processing the directory specified in [CreateIFFOptions.rootDir](./inline-fixture-files.createiffoptions.rootdir.md) using <code>path.resolve</code>. |
 
 ## Methods

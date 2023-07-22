@@ -16,11 +16,9 @@ The utility for writing fixture files inline.
 
 |  Interface | Description |
 |  --- | --- |
-|  [AddFixturesResult](./inline-fixture-files.addfixturesresult.md) | The return of [CreateIFFResult.addFixtures()](./inline-fixture-files.createiffresult.addfixtures.md)<!-- -->. |
 |  [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) | The options for [createIFF()](./inline-fixture-files.createiff.md)<!-- -->. |
 |  [CreateIFFResult](./inline-fixture-files.createiffresult.md) | The return of [createIFF()](./inline-fixture-files.createiff.md)<!-- -->. |
 |  [Directory](./inline-fixture-files.directory.md) |  |
-|  [ForkResult](./inline-fixture-files.forkresult.md) | The return of [CreateIFFResult.fork()](./inline-fixture-files.createiffresult.fork.md)<!-- -->. |
 
 ## Type Aliases
 

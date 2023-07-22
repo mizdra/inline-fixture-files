@@ -9,7 +9,7 @@ Create fixtures in the specified directory.
 **Signature:**
 
 ```typescript
-export declare function createIFF<const T extends Directory>(directory: T, options: CreateIFFOptions): Promise<CreateIFFResult<T>>;
+export declare function createIFF<const T extends Directory>(directory: T, options: CreateIFFOptions): Promise<CreateIFFResult<FlattenDirectory<T>>>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ export declare function createIFF<const T extends Directory>(directory: T, optio
 
 **Returns:**
 
-Promise&lt;[CreateIFFResult](./inline-fixture-files.createiffresult.md)<!-- -->&lt;T&gt;&gt;
+Promise&lt;[CreateIFFResult](./inline-fixture-files.createiffresult.md)<!-- -->&lt;FlattenDirectory&lt;T&gt;&gt;&gt;
 
 An object that provides functions to manipulate the fixtures.
 
