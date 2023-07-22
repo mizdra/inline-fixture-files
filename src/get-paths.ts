@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { join as joinForPosix, dirname as dirnameForPosix, sep as sepForPosix } from 'node:path/posix';
-import { Directory, isFile } from './create-iff.js';
+import { Directory, isFile } from './create-iff-impl.js';
 
 /** Utility type that converts `{ a: string, [key: string]: any; }` to `{ a: string }`. */
 // ref: https://github.com/type-challenges/type-challenges/issues/3542

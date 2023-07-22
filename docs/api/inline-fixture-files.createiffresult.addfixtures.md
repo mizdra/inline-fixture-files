@@ -9,7 +9,7 @@ Add fixtures to [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-
 **Signature:**
 
 ```typescript
-addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>>;
+addFixtures<const U extends Directory>(additionalDirectory: U): Promise<Pick<CreateIFFResult<Paths & FlattenDirectory<U>>, 'paths'>>;
 ```
 
 ## Parameters
@@ -20,5 +20,5 @@ addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixtu
 
 **Returns:**
 
-Promise&lt;[AddFixturesResult](./inline-fixture-files.addfixturesresult.md)<!-- -->&lt;T, U&gt;&gt;
+Promise&lt;Pick&lt;[CreateIFFResult](./inline-fixture-files.createiffresult.md)<!-- -->&lt;Paths &amp; FlattenDirectory&lt;U&gt;&gt;, 'paths'&gt;&gt;
 

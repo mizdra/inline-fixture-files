@@ -5,10 +5,10 @@
 
 import { constants, cp, readdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { Directory, createIFF as createIFFImpl } from './create-iff.js';
+import { Directory, createIFFImpl } from './create-iff-impl.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
-export type { Directory, DirectoryItem, FileType } from './create-iff.js';
+export type { Directory, DirectoryItem, FileType } from './create-iff-impl.js';
 
 /**
  * The options for {@link createIFF}.
@@ -22,35 +22,10 @@ export interface CreateIFFOptions {
 }
 
 /**
- * The return of {@link CreateIFFResult.addFixtures}.
- * @public
- */
-export interface AddFixturesResult<T extends Directory, U extends Directory> {
-  /**
-   * The paths to fixtures created with {@link createIFF} and added with {@link CreateIFFResult.addFixtures}.
-   * See {@link CreateIFFResult.paths} for details.
-   */
-  paths: FlattenDirectory<T> & FlattenDirectory<U>;
-}
-
-/**
- * The return of {@link CreateIFFResult.fork}.
- * @public
- */
-// eslint-disable-next-line no-use-before-define
-export interface ForkResult<T extends Directory, U extends Directory> extends CreateIFFResult<T> {
-  /**
-   * The paths to fixtures created with {@link createIFF} and added with {@link CreateIFFResult.fork}.
-   * See {@link CreateIFFResult.paths} for details.
-   */
-  paths: FlattenDirectory<T> & FlattenDirectory<U>;
-}
-
-/**
  * The return of {@link createIFF}.
  * @public
  */
-export interface CreateIFFResult<T extends Directory> {
+export interface CreateIFFResult<Paths extends Record<string, string>> {
   /**
    * The directory where fixtures are written.
    * This directory is obtained by processing the directory specified in {@link CreateIFFOptions.rootDir}
@@ -101,7 +76,7 @@ export interface CreateIFFResult<T extends Directory> {
    * }>(iff.paths);
    * ```
    */
-  paths: FlattenDirectory<T>;
+  paths: Paths;
   /**
    * Join `rootDir` and `paths`. It is equivalent to `require('path').join(rootDir, ...paths)`.
    *
@@ -127,7 +102,9 @@ export interface CreateIFFResult<T extends Directory> {
    * Add fixtures to {@link CreateIFFOptions.rootDir | rootDir}.
    * @param additionalDirectory - The definition of fixtures to be added.
    */
-  addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>>;
+  addFixtures<const U extends Directory>(
+    additionalDirectory: U,
+  ): Promise<Pick<CreateIFFResult<Paths & FlattenDirectory<U>>, 'paths'>>;
   /**
    * Change the root directory and take over the fixture you created.
    *
@@ -163,7 +140,10 @@ export interface CreateIFFResult<T extends Directory> {
    * @param additionalDirectory - The definition of fixtures to be added.
    * @param options -  The options for creating fixtures.
    */
-  fork<const U extends Directory>(additionalDirectory: U, options: CreateIFFOptions): Promise<ForkResult<T, U>>;
+  fork<const U extends Directory>(
+    additionalDirectory: U,
+    options: CreateIFFOptions,
+  ): Promise<CreateIFFResult<Paths & FlattenDirectory<U>>>;
 }
 
 /**
@@ -195,43 +175,36 @@ export interface CreateIFFResult<T extends Directory> {
 export async function createIFF<const T extends Directory>(
   directory: T,
   options: CreateIFFOptions,
-): Promise<CreateIFFResult<T>> {
+): Promise<CreateIFFResult<FlattenDirectory<T>>> {
   const rootDir = resolve(options.rootDir); // normalize path
   const paths = getPaths(directory, rootDir);
 
-  function getRealPath(...paths: string[]): string {
-    return join(rootDir, ...paths);
-  }
-  async function rmRootDir(): Promise<void> {
-    await rm(rootDir, { recursive: true, force: true });
-  }
-  async function rmFixtures(): Promise<void> {
-    const files = await readdir(rootDir);
-    await Promise.all(files.map(async (file) => rm(getRealPath(file), { recursive: true, force: true })));
-  }
-  async function addFixtures<const U extends Directory>(additionalDirectory: U): Promise<AddFixturesResult<T, U>> {
-    await createIFFImpl(additionalDirectory, rootDir);
-    return { paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
-  }
-  async function fork<const U extends Directory>(
-    additionalDirectory: U,
-    forkedIffOptions: CreateIFFOptions,
-  ): Promise<ForkResult<T, U>> {
-    const forkedIff = await createIFF({}, forkedIffOptions);
-    await cp(rootDir, forkedIffOptions.rootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
-    const { paths: addedPaths } = await forkedIff.addFixtures(additionalDirectory);
-    return { ...forkedIff, paths: { ...getPaths(directory, forkedIffOptions.rootDir), ...addedPaths } };
-  }
+  const iff: CreateIFFResult<FlattenDirectory<T>> = {
+    rootDir,
+    paths,
+    join(...paths) {
+      return join(rootDir, ...paths);
+    },
+    async rmRootDir() {
+      await rm(rootDir, { recursive: true, force: true });
+    },
+    async rmFixtures() {
+      const files = await readdir(rootDir);
+      await Promise.all(files.map(async (file) => rm(iff.join(file), { recursive: true, force: true })));
+    },
+    async addFixtures(additionalDirectory) {
+      await createIFFImpl(additionalDirectory, rootDir);
+      return { paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
+    },
+    async fork(additionalDirectory, forkedIffOptions) {
+      const forkedIff = await createIFF({}, forkedIffOptions);
+      await cp(rootDir, forkedIffOptions.rootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
+      const { paths: addedPaths } = await forkedIff.addFixtures(additionalDirectory);
+      return { ...forkedIff, paths: { ...getPaths(directory, forkedIffOptions.rootDir), ...addedPaths } };
+    },
+  };
 
   await createIFFImpl(directory, rootDir);
 
-  return {
-    rootDir,
-    join: getRealPath,
-    rmRootDir,
-    rmFixtures,
-    addFixtures,
-    paths,
-    fork,
-  };
+  return iff;
 }
