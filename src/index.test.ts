@@ -172,9 +172,9 @@ describe('CreateIFFResult', () => {
     });
   });
   describe('fork', () => {
+    const baseRootDir = join(fixtureDir, 'base');
+    const forkedRootDir = join(fixtureDir, 'forked');
     test('fork IFF', async () => {
-      const baseRootDir = join(fixtureDir, 'base');
-      const forkedRootDir = join(fixtureDir, 'forked');
       const baseIff = await createIFF({ 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } }, { rootDir: baseRootDir });
 
       await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { rootDir: forkedRootDir });
@@ -188,6 +188,12 @@ describe('CreateIFFResult', () => {
       // The `baseIff` fixtures are left in place.
       expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
       expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+    });
+    test('throw error if forkOptions.rootDir is the same as rootDir passed to createIFF', async () => {
+      const iff = await createIFF({}, { rootDir: baseRootDir });
+      await expect(iff.fork({}, { rootDir: baseRootDir })).rejects.toThrowErrorMatchingInlineSnapshot(
+        '"`forkOptions.rootDir` must be different from the `rootDir` passed to `createIFF`."',
+      );
     });
   });
 });
