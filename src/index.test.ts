@@ -198,33 +198,23 @@ describe('CreateIFFResult', () => {
         '"`forkOptions.rootDir` must be different from the `rootDir` passed to `createIFF`."',
       );
     });
+    test('return both the path of the old fixture and the path of the fixture added by fork', async () => {
+      const iff1 = await createIFF({ 'a.txt': 'a' }, options);
+      const iff2 = await iff1.addFixtures({ 'b.txt': 'b' });
+      const iff3 = await iff2.fork({ 'c.txt': 'c' }, { overrideRootDir: forkedRootDir });
+      expect(iff3.paths).toStrictEqual({
+        'a.txt': join(fixtureDir, 'a.txt'),
+        'b.txt': join(fixtureDir, 'b.txt'),
+        'c.txt': join(fixtureDir, 'c.txt'),
+      });
+      expectType<{
+        'a.txt': string;
+        'b.txt': string;
+        'c.txt': string;
+      }>(iff3.paths);
+      // @ts-expect-error
+      // eslint-disable-next-line no-unused-expressions
+      paths['d.txt'];
+    });
   });
-});
-
-test('ForkResult', async () => {
-  const baseRootDir = join(fixtureDir, 'base');
-  const forkedRootDir = join(fixtureDir, 'forked');
-  const baseIff = await createIFF({ 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } }, { generateRootDir: () => baseRootDir });
-
-  const forkedIff = await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { overrideRootDir: forkedRootDir });
-
-  expect(forkedIff.rootDir).toBe(forkedRootDir);
-
-  expect(forkedIff.paths).toStrictEqual({
-    'a.txt': join(forkedRootDir, 'a.txt'),
-    'b': join(forkedRootDir, 'b'),
-    'b/a.txt': join(forkedRootDir, 'b/a.txt'),
-    'b/b.txt': join(forkedRootDir, 'b/b.txt'),
-    'c.txt': join(forkedRootDir, 'c.txt'),
-  });
-  expectType<{
-    'a.txt': string;
-    'b': string;
-    'b/a.txt': string;
-    'b/b.txt': string;
-    'c.txt': string;
-  }>(forkedIff.paths);
-  // @ts-expect-error
-  // eslint-disable-next-line no-unused-expressions
-  forkedIff.paths['d.txt'];
 });
