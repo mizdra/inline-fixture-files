@@ -17,15 +17,15 @@ export interface CreateIFFResult<Paths extends Record<string, string>>
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [paths](./inline-fixture-files.createiffresult.paths.md) |  | Paths | The paths of the fixtures. It is useful to get the path of fixtures in type safety. |
-|  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The directory where fixtures are written. This directory is obtained by processing the directory specified in [CreateIFFOptions.rootDir](./inline-fixture-files.createiffoptions.rootdir.md) using <code>path.resolve</code>. |
+|  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The path of the fixture root directory. This path is normalized using <code>path.resolve</code>. |
 
 ## Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
+|  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to the fixture root directory. |
 |  [fork(additionalDirectory, forkOptions)](./inline-fixture-files.createiffresult.fork.md) | Change the root directory and take over the fixture you created. |
 |  [join(paths)](./inline-fixture-files.createiffresult.join.md) | Join <code>rootDir</code> and <code>paths</code>. It is equivalent to <code>require('path').join(rootDir, ...paths)</code>. |
-|  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete fixtures under [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
-|  [rmRootDir()](./inline-fixture-files.createiffresult.rmrootdir.md) | Delete [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->. |
+|  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete files under the fixture root directory. |
+|  [rmRootDir()](./inline-fixture-files.createiffresult.rmrootdir.md) | Delete the fixture root directory. |
 

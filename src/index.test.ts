@@ -6,7 +6,7 @@ import { fixtureDir, exists } from './test/util.js';
 import { createIFF, CreateIFFOptions } from './index.js';
 
 const options = {
-  rootDir: fixtureDir,
+  generateRootDir: () => fixtureDir,
 } as const satisfies CreateIFFOptions;
 
 beforeEach(async () => {
@@ -47,14 +47,14 @@ test('integration test', async () => {
 
 describe('createIFF', () => {
   test('rootDir', async () => {
-    const iff = await createIFF({ 'a.txt': 'a' }, { rootDir: join(fixtureDir, 'a') });
+    const iff = await createIFF({ 'a.txt': 'a' }, { generateRootDir: () => join(fixtureDir, 'a') });
     expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
   });
 });
 
 describe('CreateIFFResult', () => {
   test('rootDir', async () => {
-    const iff = await createIFF({}, { rootDir: join(fixtureDir, 'a') });
+    const iff = await createIFF({}, { generateRootDir: () => join(fixtureDir, 'a') });
     expect(iff.rootDir).toBe(join(fixtureDir, 'a'));
   });
   test('join', async () => {
@@ -175,9 +175,12 @@ describe('CreateIFFResult', () => {
     const baseRootDir = join(fixtureDir, 'base');
     const forkedRootDir = join(fixtureDir, 'forked');
     test('fork IFF', async () => {
-      const baseIff = await createIFF({ 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } }, { rootDir: baseRootDir });
+      const baseIff = await createIFF(
+        { 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } },
+        { generateRootDir: () => baseRootDir },
+      );
 
-      await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { rootDir: forkedRootDir });
+      await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { overrideRootDir: forkedRootDir });
 
       // `forkedIff` inherits fixtures from `baseIff`.
       expect(await readFile(join(forkedRootDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
@@ -190,8 +193,8 @@ describe('CreateIFFResult', () => {
       expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
     });
     test('throw error if forkOptions.rootDir is the same as rootDir passed to createIFF', async () => {
-      const iff = await createIFF({}, { rootDir: baseRootDir });
-      await expect(iff.fork({}, { rootDir: baseRootDir })).rejects.toThrowErrorMatchingInlineSnapshot(
+      const iff = await createIFF({}, { generateRootDir: () => baseRootDir });
+      await expect(iff.fork({})).rejects.toThrowErrorMatchingInlineSnapshot(
         '"`forkOptions.rootDir` must be different from the `rootDir` passed to `createIFF`."',
       );
     });
@@ -201,9 +204,9 @@ describe('CreateIFFResult', () => {
 test('ForkResult', async () => {
   const baseRootDir = join(fixtureDir, 'base');
   const forkedRootDir = join(fixtureDir, 'forked');
-  const baseIff = await createIFF({ 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } }, { rootDir: baseRootDir });
+  const baseIff = await createIFF({ 'a.txt': 'a', 'b': { 'a.txt': 'b-a' } }, { generateRootDir: () => baseRootDir });
 
-  const forkedIff = await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { rootDir: forkedRootDir });
+  const forkedIff = await baseIff.fork({ 'b': { 'b.txt': 'b-b' }, 'c.txt': 'c' }, { overrideRootDir: forkedRootDir });
 
   expect(forkedIff.rootDir).toBe(forkedRootDir);
 

@@ -4,7 +4,7 @@
 
 ## CreateIFFResult.rootDir property
 
-The directory where fixtures are written. This directory is obtained by processing the directory specified in [CreateIFFOptions.rootDir](./inline-fixture-files.createiffoptions.rootdir.md) using `path.resolve`<!-- -->.
+The path of the fixture root directory. This path is normalized using `path.resolve`<!-- -->.
 
 **Signature:**
 
