@@ -1,17 +1,17 @@
+import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
-import { expect, test, beforeEach } from 'vitest';
+import { expect, test } from 'vitest';
 import { createIFF } from '../src/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const fixtureDir = join(tmpdir(), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
+const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const generateRootDir = () => join(fixtureBaseDir, randomUUID());
 
-beforeEach(async () => {
-  await rm(fixtureDir, { recursive: true, force: true });
-});
+await rm(fixtureBaseDir, { recursive: true, force: true });
 
 test('eslint reports lint errors', async () => {
   const iff = await createIFF(
@@ -26,7 +26,7 @@ test('eslint reports lint errors', async () => {
       // The above can be written in abbreviated form:
       // 'src/semi.js': dedent`...`,
     },
-    { rootDir: fixtureDir },
+    { generateRootDir },
   );
 
   const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
