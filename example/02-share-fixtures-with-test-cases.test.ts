@@ -1,15 +1,26 @@
-import { readFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
 import { describe, expect, it } from 'vitest';
-import { createIFFByRandomRootDir } from './util/create-iff-by-random-root-dir.js';
+import { createIFF } from '../src/index.js';
+
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const generateRootDir = () => join(fixtureBaseDir, randomUUID());
+
+await rm(fixtureBaseDir, { recursive: true, force: true });
 
 describe('eslint', async () => {
   // Share `.eslintrc.cjs` between test cases.
-  const baseIFF = await createIFFByRandomRootDir({
-    '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
-  });
-
+  const baseIFF = await createIFF(
+    {
+      '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
+    },
+    { generateRootDir },
+  );
   it('reports lint errors', async () => {
     // The `fork` allows you to change the `rootDir` of fixtures while inheriting the fixtures from `baseIFF`.
     const iff = await baseIFF.fork({

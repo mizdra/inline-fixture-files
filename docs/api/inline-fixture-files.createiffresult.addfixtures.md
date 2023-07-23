@@ -4,7 +4,7 @@
 
 ## CreateIFFResult.addFixtures() method
 
-Add fixtures to [rootDir](./inline-fixture-files.createiffoptions.rootdir.md)<!-- -->.
+Add fixtures to the fixture root directory.
 
 **Signature:**
 
