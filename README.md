@@ -12,7 +12,7 @@ $ npm i -D @mizdra/inline-fixture-files
 
 - Write fixture files inline
 - Type-safe access to the fixture file path
-- Share fixture files between test cases
+- Share fixture files with test cases
 - Cross-platform support
 - Zero dependencies
 
@@ -81,19 +81,20 @@ You can use `iff.paths` to get the paths of the generated fixture files.
 
 ```ts
 // example/01-basic.test.ts
+import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
-import { expect, test, beforeEach } from 'vitest';
+import { expect, test } from 'vitest';
 import { createIFF } from '@mizdra/inline-fixture-files';
 
-const fixtureDir = join(tmpdir(), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const generateRootDir = () => join(fixtureBaseDir, randomUUID());
 
-beforeEach(async () => {
-  await rm(fixtureDir, { recursive: true, force: true });
-});
+await rm(fixtureBaseDir, { recursive: true, force: true });
 
 test('eslint reports lint errors', async () => {
   const iff = await createIFF(
@@ -108,7 +109,7 @@ test('eslint reports lint errors', async () => {
       // The above can be written in abbreviated form:
       // 'src/semi.js': dedent`...`,
     },
-    { rootDir: fixtureDir },
+    { generateRootDir },
   );
 
   const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
@@ -123,90 +124,36 @@ test('eslint reports lint errors', async () => {
 });
 ```
 
-### Example: Random `roodDir`
+### Example: Share fixture files with test cases
 
-If you use `@mizdra/inline-fixture-files`, it is recommended to create a utility (`createIFFByRandomRootDir`) that generates a random `rootDir` and calls `createIFF` with it. This is very helpful to keep each test case independent.
+`iff.fork` is an API that changes the root directory while taking over previously created fixture files. It allows fixture files to be shared with test cases.
 
-````ts
-// example/util/create-iff-by-random-root-dir.js
+```ts
+// example/02-share-fixtures-with-test-cases.test.ts
+
 import { randomUUID } from 'node:crypto';
+import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createIFF, Directory } from '@mizdra/inline-fixture-files';
-/**
- * The root directory for fixtures.
- *
- * NOTE: To avoid bloating `fixtureDir`, it is recommended to delete `fixtureDir` at the beginning of the test.
- * ```ts
- * // vitest.setup.ts
- * import { rm } from 'node:fs/promises';
- * await rm(fixtureDir, { recursive: true, force: true });
- * ```
- */
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const fixtureDir = join(tmpdir(), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
-
-export async function createIFFByRandomRootDir<const T extends Directory>(directory: T) {
-  const getRandomRootDir = () => join(fixtureDir, randomUUID());
-  const iff = await createIFF(directory, { rootDir: getRandomRootDir() });
-  return {
-    ...iff,
-    fork: async function forkImpl<const U extends Directory>(additionalDirectory: U) {
-      const forkedIff = await iff.fork(additionalDirectory, { rootDir: getRandomRootDir() });
-      return { ...forkedIff, fork: forkImpl };
-    },
-  };
-}
-````
-
-```ts
-// example/02-random-root-dir.test.ts
-import dedent from 'dedent';
-import { ESLint } from 'eslint';
-import { expect, test } from 'vitest';
-import { createIFFByRandomRootDir } from './util/create-iff-by-random-root-dir.js';
-
-test('eslint reports lint errors', async () => {
-  const iff = await createIFFByRandomRootDir({
-    '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
-    'src': {
-      'semi.js': dedent`
-        var withSemicolon = 1;
-        var withoutSemicolon = 2
-      `,
-    },
-  });
-
-  const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
-  const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
-  const formatter = await eslint.loadFormatter('unix');
-  const resultText = formatter.format(results);
-  expect(resultText).toStrictEqual(dedent`
-    ${iff.paths['src/semi.js']}:2:25: Missing semicolon. [Error/semi]
-
-    1 problem
-  `);
-});
-```
-
-### Example: Share fixture files between test cases
-
-`iff.fork` is an API that changes the root directory while taking over previously created fixture files. It allows fixture files to be shared between test cases.
-
-```ts
-// example/03-share-fixtures-between-test-cases.test.ts
-import { readFile } from 'node:fs/promises';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
 import { describe, expect, it } from 'vitest';
-import { createIFFByRandomRootDir } from './util/create-iff-by-random-root-dir.js';
+import { createIFF } from '@mizdra/inline-fixture-files';
+
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const generateRootDir = () => join(fixtureBaseDir, randomUUID());
+
+await rm(fixtureBaseDir, { recursive: true, force: true });
 
 describe('eslint', async () => {
   // Share `.eslintrc.cjs` between test cases.
-  const baseIFF = await createIFFByRandomRootDir({
-    '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
-  });
-
+  const baseIFF = await createIFF(
+    {
+      '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
+    },
+    { generateRootDir },
+  );
   it('reports lint errors', async () => {
     // The `fork` allows you to change the `rootDir` of fixtures while inheriting the fixtures from `baseIFF`.
     const iff = await baseIFF.fork({
