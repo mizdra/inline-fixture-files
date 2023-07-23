@@ -1,7 +1,7 @@
 import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { fixtureDir, exists } from './test/util.js';
 import { createIFF, CreateIFFOptions } from './index.js';
 
@@ -46,9 +46,32 @@ test('integration test', async () => {
 });
 
 describe('createIFF', () => {
-  test('rootDir', async () => {
-    const iff = await createIFF({ 'a.txt': 'a' }, { generateRootDir: () => join(fixtureDir, 'a') });
-    expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
+  test('generateRootDir', async () => {
+    const generateRootDir = vi
+      .fn()
+      .mockReturnValueOnce(join(fixtureDir, 'a'))
+      .mockReturnValueOnce(join(fixtureDir, 'b'));
+    const iff1 = await createIFF({ 'a.txt': 'a' }, { generateRootDir });
+    expect(iff1.join('a.txt')).toBe(join(fixtureDir, 'a/a.txt'));
+    expect(generateRootDir).toHaveBeenCalledTimes(1);
+
+    const iff2 = await iff1.fork({ 'b.txt': 'b' });
+    expect(iff2.join('b.txt')).toBe(join(fixtureDir, 'b/b.txt'));
+    expect(generateRootDir).toHaveBeenCalledTimes(2);
+  });
+  test('overrideRootDir', async () => {
+    const generateRootDir = vi
+      .fn()
+      .mockReturnValueOnce(join(fixtureDir, 'a-1'))
+      .mockReturnValueOnce(join(fixtureDir, 'b-1'))
+      .mockReturnValueOnce(join(fixtureDir, 'c-1'));
+    const iff1 = await createIFF({ 'a.txt': 'a' }, { generateRootDir, overrideRootDir: join(fixtureDir, 'a-2') });
+    expect(iff1.join('a.txt')).toBe(join(fixtureDir, 'a-2/a.txt'));
+    expect(generateRootDir).toHaveBeenCalledTimes(0);
+
+    const iff2 = await iff1.fork({ 'b.txt': 'b' }, { overrideRootDir: join(fixtureDir, 'b-2') });
+    expect(iff2.join('b.txt')).toBe(join(fixtureDir, 'b-2/b.txt'));
+    expect(generateRootDir).toHaveBeenCalledTimes(0);
   });
 });
 
