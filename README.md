@@ -33,42 +33,6 @@ However, this approach leads to the test code and fixture file definitions being
 
 `@mizdra/inline-fixture-files` allows you to define fixture files in your test code. This makes the test code easier to understand.
 
-```ts
-import dedent from 'dedent';
-import { createIFF } from '@mizdra/inline-fixture-files';
-
-const iff1 = await createIFF(
-  {
-    'src/index.ts': dedent`
-      export function hello() {
-        console.log('Hello, world!');
-      }
-    `,
-  },
-  { rootDir: join(fixtureDir, 'test-case-1') },
-);
-const iff2 = await createIFF(
-  {
-    src: {
-      'index.ts': dedent`
-        import { add } from './math';
-
-        export function hello() {
-          console.log('Hello, world!');
-          console.log(add(1, 2));
-        }
-      `,
-      'math.ts': dedent`
-        export function add(a: number, b: number): number {
-          return a + b;
-        }
-      `,
-    },
-  },
-  { rootDir: join(fixtureDir, 'test-case-1') },
-);
-```
-
 ## API documentation
 
 See [/docs/api/index.md](/docs/api/index.md).
