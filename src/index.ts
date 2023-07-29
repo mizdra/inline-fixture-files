@@ -4,7 +4,7 @@
  */
 
 import { constants, cp, readdir, rm } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { join } from 'node:path';
 import { Directory, createIFFImpl } from './create-iff-impl.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
@@ -69,7 +69,6 @@ export interface ForkOptions {
 export interface CreateIFFResult<Paths extends Record<string, string>> {
   /**
    * The path of the fixture root directory.
-   * This path is normalized using `path.resolve`.
    */
   rootDir: string;
   /**
@@ -226,7 +225,7 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
     directory: T,
     options?: CreateIFFOptions,
   ): Promise<CreateIFFResult<FlattenDirectory<T>>> {
-    const rootDir = resolve(options?.overrideRootDir ?? defineIFFCreatorOptions.generateRootDir()); // normalize path
+    const rootDir = options?.overrideRootDir ?? defineIFFCreatorOptions.generateRootDir();
     const paths = getPaths(directory, rootDir);
 
     const iff: CreateIFFResult<FlattenDirectory<T>> = {
