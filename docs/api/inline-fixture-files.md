@@ -10,14 +10,15 @@ The utility for writing fixture files inline.
 
 |  Function | Description |
 |  --- | --- |
-|  [createIFF(directory, options)](./inline-fixture-files.createiff.md) | Create fixtures in the specified directory. |
+|  [defineIFFCreator(defineIFFCreatorOptions)](./inline-fixture-files.defineiffcreator.md) | Define [CreateIFF](./inline-fixture-files.createiff.md)<!-- -->. |
 
 ## Interfaces
 
 |  Interface | Description |
 |  --- | --- |
-|  [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) | The options for [createIFF()](./inline-fixture-files.createiff.md)<!-- -->. |
-|  [CreateIFFResult](./inline-fixture-files.createiffresult.md) | The return of [createIFF()](./inline-fixture-files.createiff.md)<!-- -->. |
+|  [CreateIFFOptions](./inline-fixture-files.createiffoptions.md) | The options for [CreateIFF](./inline-fixture-files.createiff.md)<!-- -->. |
+|  [CreateIFFResult](./inline-fixture-files.createiffresult.md) | The return of [CreateIFF](./inline-fixture-files.createiff.md)<!-- -->. |
+|  [DefineIFFCreatorOptions](./inline-fixture-files.defineiffcreatoroptions.md) | The options for [defineIFFCreator()](./inline-fixture-files.defineiffcreator.md)<!-- -->. |
 |  [Directory](./inline-fixture-files.directory.md) |  |
 |  [ForkOptions](./inline-fixture-files.forkoptions.md) | The options for [CreateIFFResult.fork()](./inline-fixture-files.createiffresult.fork.md)<!-- -->. |
 
@@ -25,6 +26,7 @@ The utility for writing fixture files inline.
 
 |  Type Alias | Description |
 |  --- | --- |
+|  [CreateIFF](./inline-fixture-files.createiff.md) | Create fixtures in the specified directory. |
 |  [DirectoryItem](./inline-fixture-files.directoryitem.md) |  |
 |  [FileType](./inline-fixture-files.filetype.md) |  |
 

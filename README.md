@@ -52,29 +52,26 @@ import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
 import { expect, test } from 'vitest';
-import { createIFF } from '@mizdra/inline-fixture-files';
+import { defineIFFCreator } from '@mizdra/inline-fixture-files';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
-const generateRootDir = () => join(fixtureBaseDir, randomUUID());
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
 
 await rm(fixtureBaseDir, { recursive: true, force: true });
 
 test('eslint reports lint errors', async () => {
-  const iff = await createIFF(
-    {
-      '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
-      'src': {
-        'semi.js': dedent`
+  const iff = await createIFF({
+    '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
+    'src': {
+      'semi.js': dedent`
           var withSemicolon = 1;
           var withoutSemicolon = 2
         `,
-      },
-      // The above can be written in abbreviated form:
-      // 'src/semi.js': dedent`...`,
     },
-    { generateRootDir },
-  );
+    // The above can be written in abbreviated form:
+    // 'src/semi.js': dedent`...`,
+  });
 
   const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
   const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
@@ -94,7 +91,6 @@ test('eslint reports lint errors', async () => {
 
 ```ts
 // example/02-share-fixtures-with-test-cases.test.ts
-
 import { randomUUID } from 'node:crypto';
 import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -102,22 +98,19 @@ import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
 import { describe, expect, it } from 'vitest';
-import { createIFF } from '@mizdra/inline-fixture-files';
+import { defineIFFCreator } from '@mizdra/inline-fixture-files';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
-const generateRootDir = () => join(fixtureBaseDir, randomUUID());
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
 
 await rm(fixtureBaseDir, { recursive: true, force: true });
 
 describe('eslint', async () => {
   // Share `.eslintrc.cjs` between test cases.
-  const baseIFF = await createIFF(
-    {
-      '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
-    },
-    { generateRootDir },
-  );
+  const baseIFF = await createIFF({
+    '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
+  });
   it('reports lint errors', async () => {
     // The `fork` allows you to change the `rootDir` of fixtures while inheriting the fixtures from `baseIFF`.
     const iff = await baseIFF.fork({
