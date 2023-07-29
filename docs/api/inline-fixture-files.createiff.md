@@ -15,7 +15,7 @@ export type CreateIFF = <const T extends Directory>(directory: T, options?: Crea
 
 ## Remarks
 
-The path must be in POSIX-style (`'dir/file.txt'`<!-- -->). Use of Windows-style path (`'dir\\file.txt'`<!-- -->) is an undefined behavior.
+Fixtures in the same directory are created in parallel. The order in which fixtures are created changes from time to time.
 
 ## Example
 
