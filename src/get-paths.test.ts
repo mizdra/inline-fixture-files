@@ -5,8 +5,6 @@ import { describe, expect, test } from 'vitest';
 import { getPaths, getSelfAndUpperPaths } from './get-paths.js';
 import { fixtureDir } from './test/util.js';
 
-const rootDir = fixtureDir;
-
 test('getSelfAndUpperPaths', () => {
   expect(getSelfAndUpperPaths('a/b/c')).toStrictEqual(['a/b/c', 'a/b', 'a']);
 });
@@ -18,7 +16,7 @@ describe('getPaths', () => {
         'a.txt': 'a',
         'b.txt': 'b',
       },
-      rootDir,
+      fixtureDir,
     );
     expect(paths).toStrictEqual({
       'a.txt': join(fixtureDir, 'a.txt'),
@@ -44,7 +42,7 @@ describe('getPaths', () => {
           },
         },
       },
-      rootDir,
+      fixtureDir,
     );
     expect(paths).toStrictEqual({
       'a.txt': join(fixtureDir, 'a.txt'),
@@ -75,7 +73,7 @@ describe('getPaths', () => {
           'a.txt': 'b-a-b-a',
         },
       },
-      rootDir,
+      fixtureDir,
     );
     expect(paths).toStrictEqual({
       'a': join(fixtureDir, 'a'),
@@ -124,7 +122,7 @@ describe('getPaths', () => {
   });
 
   test('throw error when item name contains consecutive separators', () => {
-    expect(() => getPaths({ 'a//a.txt': 'a--a' }, rootDir)).toThrowErrorMatchingInlineSnapshot(
+    expect(() => getPaths({ 'a//a.txt': 'a--a' }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
       '"Item name must not contain consecutive separators: a//a.txt"',
     );
   });
@@ -144,7 +142,7 @@ describe('getPaths', () => {
           'a.txt': 'd-a',
         },
       },
-      rootDir,
+      fixtureDir,
     );
     expect(paths).toStrictEqual({
       'a.txt': join(fixtureDir, 'a.txt'),
@@ -186,7 +184,7 @@ describe('getPaths', () => {
           await utimes(path, new Date(0), new Date(1));
         },
       },
-      rootDir,
+      fixtureDir,
     );
     expect(paths).toStrictEqual({
       'utime.txt': join(fixtureDir, 'utime.txt'),
@@ -198,4 +196,30 @@ describe('getPaths', () => {
     // eslint-disable-next-line no-unused-expressions
     paths['a.txt'];
   });
+});
+
+test('allow function and null as items', () => {
+  const paths = getPaths(
+    {
+      'a.txt': null,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'b.txt': () => {},
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'c.txt': async () => {},
+    },
+    fixtureDir,
+  );
+  expect(paths).toStrictEqual({
+    'a.txt': join(fixtureDir, 'a.txt'),
+    'b.txt': join(fixtureDir, 'b.txt'),
+    'c.txt': join(fixtureDir, 'c.txt'),
+  });
+  expectType<{
+    'a.txt': string;
+    'b.txt': string;
+    'c.txt': string;
+  }>(paths);
+  // @ts-expect-error
+  // eslint-disable-next-line no-unused-expressions
+  paths['d.txt'];
 });

@@ -4,7 +4,7 @@ import { sep as sepForPosix } from 'node:path/posix';
 import { IFFFixtureCreationError } from './error.js';
 
 /** @public */
-export type FileType = string | ((path: string) => Promise<void>); // TODO: support `null` and `(path: string) => void`
+export type FileType = string | ((path: string) => void) | ((path: string) => Promise<void>) | null;
 
 /** @public */
 // eslint-disable-next-line no-use-before-define
@@ -28,10 +28,10 @@ export interface Directory {
 }
 
 export function isDirectory(item: DirectoryItem): item is Directory {
-  return typeof item === 'object';
+  return item !== null && typeof item === 'object';
 }
 
-function throwFixtureCreationError(path: string, cause: Error, throwByFlexibleFileCreationAPI = false): never {
+function throwFixtureCreationError(path: string, cause: unknown, throwByFlexibleFileCreationAPI = false): never {
   throw new IFFFixtureCreationError(path, { cause, throwByFlexibleFileCreationAPI });
 }
 
@@ -45,14 +45,22 @@ export async function createIFFImpl(directory: Directory, baseDir: string): Prom
     if (name.includes(sepForPosix.repeat(2)))
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
+    // TODO: Write files in parallel
+
     const path = join(baseDir, name);
-    if (typeof item === 'string') {
+    if (item === null) {
+      // noop
+    } else if (typeof item === 'string') {
       // `item` is file.
       await mkdir(dirname(path), { recursive: true }).catch((cause) => throwFixtureCreationError(dirname(path), cause));
       await writeFile(path, item).catch((cause) => throwFixtureCreationError(path, cause));
     } else if (typeof item === 'function') {
       // `item` is file.
-      await item(path).catch((cause) => throwFixtureCreationError(path, cause, true));
+      try {
+        await item(path);
+      } catch (cause) {
+        throwFixtureCreationError(path, cause, true);
+      }
     } else {
       // `item` is directory.
       await createIFFImpl(item, path);

@@ -8,5 +8,5 @@
 **Signature:**
 
 ```typescript
-export type FileType = string | ((path: string) => Promise<void>);
+export type FileType = string | ((path: string) => void) | ((path: string) => Promise<void>) | null;
 ```

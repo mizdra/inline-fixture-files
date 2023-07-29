@@ -128,3 +128,17 @@ describe('support flexible fixture creation API', () => {
     );
   });
 });
+
+test('allow function and null as items', async () => {
+  await createIFFImpl(
+    {
+      'a.txt': null,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'b.txt': () => {},
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'c.txt': async () => {},
+    },
+    fixtureDir,
+  );
+  expect(await readdir(fixtureDir)).toEqual([]);
+});

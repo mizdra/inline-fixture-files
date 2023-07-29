@@ -210,7 +210,7 @@ const iff2 = await createIFF({
   // If you want to include the paths to the files in the copied directory in `iff2.paths`,
   // you can use the following hack:
   'cp': {
-    'file1.txt': () => {}, // noop
+    'file1.txt': null, // If null is passed, the file will not be written, but will be included in paths.
   },
 });
 expectType<{
