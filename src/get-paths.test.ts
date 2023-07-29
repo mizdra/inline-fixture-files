@@ -1,3 +1,4 @@
+import { utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { describe, expect, test } from 'vitest';
@@ -175,5 +176,26 @@ describe('getPaths', () => {
     // @ts-expect-error
     // eslint-disable-next-line no-unused-expressions
     paths['d/a.txt'];
+  });
+  test('support flexible fixture creation API', () => {
+    const paths = getPaths(
+      {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'utime.txt': async (path) => {
+          await writeFile(path, 'utime');
+          await utimes(path, new Date(0), new Date(1));
+        },
+      },
+      rootDir,
+    );
+    expect(paths).toStrictEqual({
+      'utime.txt': join(fixtureDir, 'utime.txt'),
+    });
+    expectType<{
+      'utime.txt': string;
+    }>(paths);
+    // @ts-expect-error
+    // eslint-disable-next-line no-unused-expressions
+    paths['a.txt'];
   });
 });

@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { join as joinForPosix, dirname as dirnameForPosix, sep as sepForPosix } from 'node:path/posix';
-import { Directory, isFile } from './create-iff-impl.js';
+import { Directory, isDirectory } from './create-iff-impl.js';
 
 /** Utility type that converts `{ a: string, [key: string]: any; }` to `{ a: string }`. */
 // ref: https://github.com/type-challenges/type-challenges/issues/3542
@@ -44,16 +44,18 @@ export function getSelfAndUpperPaths(path: string): string[] {
 export function getPaths<T extends Directory>(directory: T, rootDir: string, prefix = ''): FlattenDirectory<T> {
   let paths: Record<string, string> = {};
   for (const [name, item] of Object.entries(directory)) {
+    // TODO: Extract to `validateDirectory` function
     if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
     if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
     if (name.includes(sepForPosix.repeat(2)))
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
     for (const n of getSelfAndUpperPaths(name)) {
+      // TODO: Is this safe?
       paths[joinForPosix(prefix, n)] = join(rootDir, prefix, n);
     }
 
-    if (!isFile(item)) {
+    if (isDirectory(item)) {
       const newPaths = getPaths(item, rootDir, joinForPosix(prefix, name));
       paths = { ...paths, ...newPaths };
     }

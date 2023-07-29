@@ -13,6 +13,7 @@ $ npm i -D @mizdra/inline-fixture-files
 - Write fixture files inline
 - Type-safe access to the fixture file path
 - Share fixture files with test cases
+- Flexible fixture creation API
 - Cross-platform support
 - Zero dependencies
 
@@ -147,4 +148,78 @@ describe('eslint', async () => {
     expect(await readFile(iff.paths['src/semi.js'], 'utf8')).toMatchInlineSnapshot('"var withoutSemicolon = 2;"');
   });
 });
+```
+
+### Example: Flexible fixture creation API
+
+`@mizdra/inline-fixture-files` provides a flexible API for creating various variations of files. This allows you to create files with customized encoding, mode, atime, and mtime. It also allows for copying and symlinking.
+
+```ts
+import { defineIFFCreator } from '@mizdra/inline-fixture-files';
+import { writeFile, utimes, cp, symlink, mkdir } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { dirname, join } from 'node:path';
+
+const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
+
+// Example: File
+const iff1 = await createIFF({
+  'buffer.txt': async (path) => writeFile(path, Buffer.from([0x00, 0x01])),
+  'encoding.txt': async (path) => writeFile(path, 'text', { encoding: 'utf16le' }),
+  'mode.txt': async (path) => writeFile(path, 'text', { mode: 0o600 }),
+  'flag.txt': async (path) => writeFile(path, 'text', { flag: 'wx' }),
+  'utime.txt': async (path) => {
+    await writeFile(path, 'text');
+    await utimes(0, 0);
+  },
+  'cp.txt': async (path) => cp('./cp.txt', path, { mode: constants.COPYFILE_FICLONE }),
+  'symlink.txt': async (path) => symlink('./symlink.txt', path),
+  // NOTE: The flexible file creation API does not automatically create parent directories.
+  // Therefore, you must manually create the parent directories in order to create nested files.
+  'nested/file.txt': async (path) => {
+    await mkdir(dirname(path));
+    await writeFile(path, 'text', { mode: 0o600 });
+  },
+});
+expectType<{
+  'buffer.txt'': string;
+  'encoding.txt': string;
+  'mode.txt': string;
+  'flag.txt': string;
+  'utime.txt': string;
+  'cp.txt': string;
+  'symlink.txt': string;
+  'nested': string;
+  'nested/file.txt': string;
+}>(iff1.paths);
+
+// Example: Directory
+const iff2 = await createIFF({
+  'mode': async (path) => mkdir(path, { mode: 0o600 }),
+  'cp': async (path) => cp('./cp', path, { mode: constants.COPYFILE_FICLONE }),
+  'symlink': async (path) => symlink('./symlink', path),
+  // NOTE: The flexible file creation API does not automatically create parent directories.
+  // Therefore, the recursive option is required to create nested directories.
+  'nested/directory': async (path) => mkdir(path, { mode: 0x600, recursive: true }),
+}).addFixtures({
+  // Use the add function to add files to the directory created by the flexible file creation API.
+  'mode': {
+    'file1.txt': 'file1',
+  },
+  // If you want to include the paths to the files in the copied directory in `iff2.paths`,
+  // you can use the following hack:
+  'cp': {
+    'file1.txt': () => {}, // noop
+  },
+});
+expectType<{
+  'mode': string;
+  'mode/file1.txt': string;
+  'cp': string;
+  'cp/file1.txt': string;
+  'symlink': string;
+  'nested': string;
+  'nested/directory': string;
+}>(iff2.paths);
 ```

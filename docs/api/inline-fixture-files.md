@@ -6,6 +6,12 @@
 
 The utility for writing fixture files inline.
 
+## Classes
+
+|  Class | Description |
+|  --- | --- |
+|  [IFFFixtureCreationError](./inline-fixture-files.ifffixturecreationerror.md) | The error thrown when fixture creation fails. |
+
 ## Functions
 
 |  Function | Description |
