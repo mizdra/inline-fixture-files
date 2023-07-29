@@ -12,7 +12,7 @@ export class IFFFixtureCreationError extends Error {
   }
   constructor(
     path: string,
-    { cause, throwByFlexibleFileCreationAPI }: { cause: Error; throwByFlexibleFileCreationAPI: boolean },
+    { throwByFlexibleFileCreationAPI, ...errorOptions }: ErrorOptions & { throwByFlexibleFileCreationAPI: boolean },
   ) {
     let message = `Failed to create fixture ('${path}').`;
 
@@ -23,7 +23,7 @@ export class IFFFixtureCreationError extends Error {
         ` The flexible fixture creation API does not automatically create the parent directory, you have to create it manually.`;
     }
 
-    super(message, { cause });
+    super(message, errorOptions);
     this.path = path;
   }
 }
