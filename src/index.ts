@@ -242,9 +242,15 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
         const files = await readdir(rootDir);
         await Promise.all(files.map(async (file) => rm(iff.join(file), { recursive: true, force: true })));
       },
-      async addFixtures(additionalDirectory) {
-        await createIFFImpl(additionalDirectory, rootDir);
-        return { ...iff, paths: { ...paths, ...getPaths(additionalDirectory, rootDir) } };
+      addFixtures(additionalDirectory) {
+        return createIFF(
+          {
+            ...Object.fromEntries(Object.keys(getPaths(directory, rootDir)).map((path) => [path, async () => {}])),
+            ...additionalDirectory,
+          },
+          { overrideRootDir: rootDir },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ) as any;
       },
       async fork(additionalDirectory, forkOptions) {
         const newRootDir = forkOptions?.overrideRootDir ?? defineIFFCreatorOptions.generateRootDir();

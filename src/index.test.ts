@@ -57,7 +57,7 @@ test('integration test', async () => {
     'b': join(fixtureDir2, 'b'),
     'b/a.txt': join(fixtureDir2, 'b/a.txt'),
     'b/b.txt': join(fixtureDir2, 'b/b.txt'),
-    // 'c.txt': join(fixtureDir2, 'c.txt'), // FIXME
+    'c.txt': join(fixtureDir2, 'c.txt'),
   });
   expect(await readFile(iff3.paths['b/b.txt'], 'utf-8')).toMatchInlineSnapshot('"b-b"');
 
@@ -195,22 +195,22 @@ describe('CreateIFFResult', () => {
       // eslint-disable-next-line no-unused-expressions
       paths['d.txt'];
     });
-    test('return the same properties as the old ones, except for paths', async () => {
-      const iff = await createIFF({});
-      const { paths, ...rest } = await iff.addFixtures({});
-      expect(rest).toStrictEqual({
-        rootDir: iff.rootDir,
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        join: iff.join,
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        rmRootDir: iff.rmRootDir,
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        rmFixtures: iff.rmFixtures,
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        addFixtures: iff.addFixtures,
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        fork: iff.fork,
-      });
+    test('return utility functions that behave the same as the old ones', async () => {
+      const iff1 = await createIFF({ 'a.txt': 'a' });
+
+      const iff2 = await iff1.addFixtures({ 'b.txt': 'b' });
+      expect(iff2.rootDir).toBe(iff1.rootDir);
+      expect(iff2.join('a.txt')).toBe(iff1.join('a.txt'));
+
+      const iff3 = await iff2.addFixtures({ 'c.txt': 'c' });
+
+      expect(await readdir(fixtureDir)).not.toStrictEqual([]);
+      await iff3.rmFixtures();
+      expect(await readdir(fixtureDir)).toStrictEqual([]);
+
+      expect(await exists(fixtureDir)).toBe(true);
+      await iff3.rmRootDir();
+      expect(await exists(fixtureDir)).toBe(false);
     });
   });
   describe('fork', () => {
