@@ -17,7 +17,7 @@ export declare class IFFFixtureCreationError extends Error
 
 |  Constructor | Modifiers | Description |
 |  --- | --- | --- |
-|  [(constructor)(path, { cause, throwByFlexibleFileCreationAPI })](./inline-fixture-files.ifffixturecreationerror._constructor_.md) |  | Constructs a new instance of the <code>IFFFixtureCreationError</code> class |
+|  [(constructor)(path, { throwByFlexibleFileCreationAPI, ...errorOptions })](./inline-fixture-files.ifffixturecreationerror._constructor_.md) |  | Constructs a new instance of the <code>IFFFixtureCreationError</code> class |
 
 ## Properties
 

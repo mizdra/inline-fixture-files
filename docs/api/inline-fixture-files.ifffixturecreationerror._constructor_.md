@@ -9,8 +9,7 @@ Constructs a new instance of the `IFFFixtureCreationError` class
 **Signature:**
 
 ```typescript
-constructor(path: string, { cause, throwByFlexibleFileCreationAPI }: {
-        cause: Error;
+constructor(path: string, { throwByFlexibleFileCreationAPI, ...errorOptions }: ErrorOptions & {
         throwByFlexibleFileCreationAPI: boolean;
     });
 ```
@@ -20,5 +19,5 @@ constructor(path: string, { cause, throwByFlexibleFileCreationAPI }: {
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  path | string |  |
-|  { cause, throwByFlexibleFileCreationAPI } | { cause: Error; throwByFlexibleFileCreationAPI: boolean; } |  |
+|  { throwByFlexibleFileCreationAPI, ...errorOptions } | ErrorOptions &amp; { throwByFlexibleFileCreationAPI: boolean; } |  |
 
