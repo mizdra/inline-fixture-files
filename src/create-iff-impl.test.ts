@@ -118,14 +118,14 @@ describe(
         },
         fixtureDir,
       );
-      // Wait for creating rootDir
-      await vi.runOnlyPendingTimersAsync();
 
-      // Wait for creating the parent directory of a.txt, b.txt, c.txt
-      await vi.runOnlyPendingTimersAsync();
-
-      // Wait for creating a.txt, b.txt, c.txt
-      await vi.runOnlyPendingTimersAsync();
+      await vi.runAllTimersAsync();
+      await vi.advanceTimersByTimeAsync(1);
+      await vi.runAllTimersAsync();
+      await vi.advanceTimersByTimeAsync(1);
+      await vi.runAllTimersAsync();
+      await vi.advanceTimersByTimeAsync(1);
+      await vi.runAllTimersAsync();
 
       // Wait for resolving promise
       await promise;
