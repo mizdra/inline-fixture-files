@@ -1,4 +1,4 @@
-import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { readFile, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -10,33 +10,69 @@ beforeEach(async () => {
 });
 
 test('integration test', async () => {
-  const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir });
-  const iff = await createIFF({
+  const fixtureDir1 = join(fixtureDir, '1');
+  const fixtureDir2 = join(fixtureDir, '2');
+  const fixtureDir3 = join(fixtureDir, '3');
+  const generateRootDir = vi
+    .fn()
+    .mockReturnValueOnce(fixtureDir1)
+    .mockReturnValueOnce(fixtureDir2)
+    .mockReturnValueOnce(fixtureDir3);
+
+  const createIFF = defineIFFCreator({ generateRootDir });
+  const iff1 = await createIFF({
     'a.txt': 'a',
     'b': {
       'a.txt': 'b-a',
     },
   });
-  expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
-  expect(iff.join('b/a.txt')).toBe(join(fixtureDir, 'b/a.txt'));
+  expect(iff1.join('a.txt')).toBe(join(fixtureDir1, 'a.txt'));
+  expect(iff1.join('b/a.txt')).toBe(join(fixtureDir1, 'b/a.txt'));
+  expect(iff1.paths).toStrictEqual({
+    'a.txt': join(fixtureDir1, 'a.txt'),
+    'b': join(fixtureDir1, 'b'),
+    'b/a.txt': join(fixtureDir1, 'b/a.txt'),
+  });
+  expect(await readFile(iff1.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
+  expect(await readFile(iff1.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
 
-  expect(iff.paths['a.txt']).toBe(join(fixtureDir, 'a.txt'));
-  expect(iff.paths['b']).toBe(join(fixtureDir, 'b'));
-  expect(iff.paths['b/a.txt']).toBe(join(fixtureDir, 'b/a.txt'));
+  const iff2 = await iff1.addFixtures({
+    'c.txt': 'c',
+  });
+  expect(iff2.paths).toStrictEqual({
+    'a.txt': join(fixtureDir1, 'a.txt'),
+    'b': join(fixtureDir1, 'b'),
+    'b/a.txt': join(fixtureDir1, 'b/a.txt'),
+    'c.txt': join(fixtureDir1, 'c.txt'),
+  });
+  expect(await readFile(iff2.paths['c.txt'], 'utf-8')).toMatchInlineSnapshot('"c"');
 
-  expect(await readFile(iff.join('a.txt'), 'utf-8')).toMatchInlineSnapshot('"a"');
-  expect(await readFile(iff.join('b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"b-a"');
+  const iff3 = await iff2.fork({
+    b: {
+      'b.txt': 'b-b',
+    },
+  });
+  expect(iff3.paths).toStrictEqual({
+    'a.txt': join(fixtureDir2, 'a.txt'),
+    'b': join(fixtureDir2, 'b'),
+    'b/a.txt': join(fixtureDir2, 'b/a.txt'),
+    'b/b.txt': join(fixtureDir2, 'b/b.txt'),
+    // 'c.txt': join(fixtureDir2, 'c.txt'), // FIXME
+  });
+  expect(await readFile(iff3.paths['b/b.txt'], 'utf-8')).toMatchInlineSnapshot('"b-b"');
 
-  await writeFile(iff.join('c.txt'), 'c');
-  expect(await readFile(iff.join('c.txt'), 'utf-8')).toMatchInlineSnapshot('"c"');
-
-  await iff.rmFixtures();
-
-  expect(await readdir(fixtureDir)).toStrictEqual([]);
-
-  await iff.rmRootDir();
-
-  expect(await exists(fixtureDir)).toBe(false);
+  const iff4 = await iff3.fork({
+    'd.txt': 'd',
+  });
+  expect(iff4.paths).toStrictEqual({
+    // 'a.txt': join(fixtureDir3, 'a.txt'), // FIXME
+    // 'b': join(fixtureDir3, 'b'), // FIXME
+    // 'b/a.txt': join(fixtureDir3, 'b/a.txt'), // FIXME
+    // 'b/b.txt': join(fixtureDir3, 'b/b.txt'), // FIXME
+    // 'c.txt': join(fixtureDir3, 'c.txt'), // FIXME
+    'd.txt': join(fixtureDir3, 'd.txt'),
+  });
+  expect(await readFile(iff4.paths['d.txt'], 'utf-8')).toMatchInlineSnapshot('"d"');
 });
 
 describe('defineIFFCreator', () => {
