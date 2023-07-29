@@ -90,15 +90,9 @@ test('merge creating fixtures for same directory', async () => {
 describe(
   'write fixtures in parallel',
   () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.restoreAllMocks();
-    });
     test('write fixtures in the same directory in parallel', async () => {
       let i = 1;
-      const promise = createIFFImpl(
+      await createIFFImpl(
         {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           'a.txt': async (path) => {
@@ -118,17 +112,6 @@ describe(
         },
         fixtureDir,
       );
-
-      await vi.runAllTimersAsync();
-      await vi.advanceTimersByTimeAsync(1);
-      await vi.runAllTimersAsync();
-      await vi.advanceTimersByTimeAsync(1);
-      await vi.runAllTimersAsync();
-      await vi.advanceTimersByTimeAsync(1);
-      await vi.runAllTimersAsync();
-
-      // Wait for resolving promise
-      await promise;
 
       expect(await readFile(join(fixtureDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"3"');
       expect(await readFile(join(fixtureDir, 'b.txt'), 'utf-8')).toMatchInlineSnapshot('"1"');
