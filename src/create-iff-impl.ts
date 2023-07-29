@@ -39,6 +39,7 @@ export async function createIFFImpl(directory: Directory, baseDir: string): Prom
   await mkdir(baseDir, { recursive: true }).catch((cause) => throwFixtureCreationError(baseDir, cause));
 
   for (const [name, item] of Object.entries(directory)) {
+    // TODO: Extract to `validateDirectory` function
     if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
     if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
     if (name.includes(sepForPosix.repeat(2)))

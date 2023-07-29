@@ -44,12 +44,14 @@ export function getSelfAndUpperPaths(path: string): string[] {
 export function getPaths<T extends Directory>(directory: T, rootDir: string, prefix = ''): FlattenDirectory<T> {
   let paths: Record<string, string> = {};
   for (const [name, item] of Object.entries(directory)) {
+    // TODO: Extract to `validateDirectory` function
     if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
     if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
     if (name.includes(sepForPosix.repeat(2)))
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
     for (const n of getSelfAndUpperPaths(name)) {
+      // TODO: Is this safe?
       paths[joinForPosix(prefix, n)] = join(rootDir, prefix, n);
     }
 
