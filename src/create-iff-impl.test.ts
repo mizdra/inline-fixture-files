@@ -1,6 +1,6 @@
-import { readFile, readdir, rm } from 'node:fs/promises';
+import { readFile, readdir, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { beforeEach, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { createIFFImpl } from './create-iff-impl.js';
 import { fixtureDir } from './test/util.js';
 
@@ -37,9 +37,11 @@ test('create directory with property name containing separator', async () => {
 });
 
 test('create empty directory with empty object', async () => {
+  await createIFFImpl({}, fixtureDir);
+  expect(await readdir(fixtureDir)).toEqual([]);
+
   await createIFFImpl({ a: {} }, fixtureDir);
-  const files = await readdir(join(fixtureDir, 'a'));
-  expect(files).toEqual([]);
+  expect(await readdir(join(fixtureDir, 'a'))).toEqual([]);
 });
 
 test('throw error when item name starts with separator', async () => {
@@ -96,4 +98,33 @@ test('prefer the later fixture when creating fixtures for same path', async () =
     fixtureDir,
   );
   expect(await readFile(join(fixtureDir, 'a/a.txt'), 'utf-8')).toMatchInlineSnapshot('"a-a#2"');
+});
+
+describe('support flexible fixture creation API', () => {
+  test('write file with callback', async () => {
+    await createIFFImpl(
+      {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'utime.txt': async (path) => {
+          await writeFile(path, 'utime');
+          await utimes(path, new Date(0), new Date(1));
+        },
+      },
+      fixtureDir,
+    );
+    const { atime, mtime } = await stat(join(fixtureDir, 'utime.txt'));
+    expect(await readFile(join(fixtureDir, 'utime.txt'), 'utf-8')).toMatchInlineSnapshot('"utime"');
+    expect(atime.getTime()).toBe(0);
+    expect(mtime.getTime()).toBe(1);
+  });
+  test('do not create parent directory when writing file with callback', async () => {
+    await expect(
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      createIFFImpl({ 'nested/file.txt': async (path) => writeFile(path, 'text') }, fixtureDir),
+    ).rejects.toThrowError(
+      `Failed to create fixture ('${join(fixtureDir, 'nested/file.txt')}').` +
+        ` Did you forget to create the parent directory ('${join(fixtureDir, 'nested')}')?` +
+        ` The flexible fixture creation API does not automatically create the parent directory, you have to create it manually.`,
+    );
+  });
 });

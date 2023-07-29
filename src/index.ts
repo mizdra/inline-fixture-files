@@ -9,6 +9,7 @@ import { Directory, createIFFImpl } from './create-iff-impl.js';
 import { FlattenDirectory, getPaths } from './get-paths.js';
 
 export type { Directory, DirectoryItem, FileType } from './create-iff-impl.js';
+export { IFFFixtureCreationError } from './error.js';
 
 /**
  * The options for {@link defineIFFCreator}.

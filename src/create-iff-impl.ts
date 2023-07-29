@@ -1,9 +1,10 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { sep as sepForPosix } from 'node:path/posix';
+import { IFFFixtureCreationError } from './error.js';
 
 /** @public */
-export type FileType = string; // TODO: support `File` class
+export type FileType = string | ((path: string) => Promise<void>);
 
 /** @public */
 // eslint-disable-next-line no-use-before-define
@@ -26,11 +27,17 @@ export interface Directory {
   [name: string]: DirectoryItem;
 }
 
-export function isFile(item: DirectoryItem): item is FileType {
-  return typeof item === 'string';
+export function isDirectory(item: DirectoryItem): item is Directory {
+  return typeof item === 'object';
+}
+
+function throwFixtureCreationError(path: string, cause: Error, throwByFlexibleFileCreationAPI = false): never {
+  throw new IFFFixtureCreationError(path, { cause, throwByFlexibleFileCreationAPI });
 }
 
 export async function createIFFImpl(directory: Directory, baseDir: string): Promise<void> {
+  await mkdir(baseDir, { recursive: true }).catch((cause) => throwFixtureCreationError(baseDir, cause));
+
   for (const [name, item] of Object.entries(directory)) {
     if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
     if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
@@ -38,15 +45,15 @@ export async function createIFFImpl(directory: Directory, baseDir: string): Prom
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
     const path = join(baseDir, name);
-    if (isFile(item)) {
+    if (typeof item === 'string') {
       // `item` is file.
-      await mkdir(dirname(path), { recursive: true });
-      if (typeof item === 'string') {
-        await writeFile(path, item);
-      }
+      await mkdir(dirname(path), { recursive: true }).catch((cause) => throwFixtureCreationError(dirname(path), cause));
+      await writeFile(path, item).catch((cause) => throwFixtureCreationError(path, cause));
+    } else if (typeof item === 'function') {
+      // `item` is file.
+      await item(path).catch((cause) => throwFixtureCreationError(path, cause, true));
     } else {
       // `item` is directory.
-      await mkdir(path, { recursive: true });
       await createIFFImpl(item, path);
     }
   }

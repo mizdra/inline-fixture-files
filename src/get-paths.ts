@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { join as joinForPosix, dirname as dirnameForPosix, sep as sepForPosix } from 'node:path/posix';
-import { Directory, isFile } from './create-iff-impl.js';
+import { Directory, isDirectory } from './create-iff-impl.js';
 
 /** Utility type that converts `{ a: string, [key: string]: any; }` to `{ a: string }`. */
 // ref: https://github.com/type-challenges/type-challenges/issues/3542
@@ -53,7 +53,7 @@ export function getPaths<T extends Directory>(directory: T, rootDir: string, pre
       paths[joinForPosix(prefix, n)] = join(rootDir, prefix, n);
     }
 
-    if (!isFile(item)) {
+    if (isDirectory(item)) {
       const newPaths = getPaths(item, rootDir, joinForPosix(prefix, name));
       paths = { ...paths, ...newPaths };
     }
