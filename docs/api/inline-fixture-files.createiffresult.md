@@ -4,7 +4,7 @@
 
 ## CreateIFFResult interface
 
-The return of [createIFF()](./inline-fixture-files.createiff.md)<!-- -->.
+The return of [CreateIFF](./inline-fixture-files.createiff.md)<!-- -->.
 
 **Signature:**
 
