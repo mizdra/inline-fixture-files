@@ -1,6 +1,6 @@
 import { readFile, readdir, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { createIFFImpl } from './create-iff-impl.js';
 import { fixtureDir, sleep } from './test/util.js';
 
@@ -96,17 +96,17 @@ describe(
         {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           'a.txt': async (path) => {
-            await sleep(3);
+            await sleep(30);
             await writeFile(path, (i++).toString());
           },
           // eslint-disable-next-line @typescript-eslint/naming-convention
           'b.txt': async (path) => {
-            await sleep(1);
+            await sleep(10);
             await writeFile(path, (i++).toString());
           },
           // eslint-disable-next-line @typescript-eslint/naming-convention
           'c.txt': async (path) => {
-            await sleep(2);
+            await sleep(20);
             await writeFile(path, (i++).toString());
           },
         },
