@@ -4,7 +4,7 @@ import { sep as sepForPosix } from 'node:path/posix';
 import { IFFFixtureCreationError } from './error.js';
 
 /** @public */
-export type FileType = string | ((path: string) => Promise<void>);
+export type FileType = string | ((path: string) => Promise<void>); // TODO: support `null` and `(path: string) => void`
 
 /** @public */
 // eslint-disable-next-line no-use-before-define
