@@ -17,3 +17,9 @@ export function oneOf<const T>(array: T[]): T {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return array[randomInt(0, array.length)]!;
 }
+
+export async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}

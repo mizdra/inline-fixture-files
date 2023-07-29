@@ -1,8 +1,8 @@
 import { readFile, readdir, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createIFFImpl } from './create-iff-impl.js';
-import { fixtureDir } from './test/util.js';
+import { fixtureDir, sleep } from './test/util.js';
 
 beforeEach(async () => {
   await rm(fixtureDir, { recursive: true, force: true });
@@ -87,18 +87,56 @@ test('merge creating fixtures for same directory', async () => {
   expect(await readFile(join(fixtureDir, 'a/b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"a-b-a"');
 });
 
-test('prefer the later fixture when creating fixtures for same path', async () => {
-  await createIFFImpl(
-    {
-      'a/a.txt': 'a-a#1',
-      'a': {
-        'a.txt': 'a-a#2',
-      },
-    },
-    fixtureDir,
-  );
-  expect(await readFile(join(fixtureDir, 'a/a.txt'), 'utf-8')).toMatchInlineSnapshot('"a-a#2"');
-});
+describe(
+  'write fixtures in parallel',
+  () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+    test('write fixtures in the same directory in parallel', async () => {
+      let i = 1;
+      const promise = createIFFImpl(
+        {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'a.txt': async (path) => {
+            await sleep(3);
+            await writeFile(path, (i++).toString());
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'b.txt': async (path) => {
+            await sleep(1);
+            await writeFile(path, (i++).toString());
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'c.txt': async (path) => {
+            await sleep(2);
+            await writeFile(path, (i++).toString());
+          },
+        },
+        fixtureDir,
+      );
+      // Wait for creating rootDir
+      await vi.runOnlyPendingTimersAsync();
+
+      // Wait for creating the parent directory of a.txt, b.txt, c.txt
+      await vi.runOnlyPendingTimersAsync();
+
+      // Wait for creating a.txt, b.txt, c.txt
+      await vi.runOnlyPendingTimersAsync();
+
+      // Wait for resolving promise
+      await promise;
+
+      expect(await readFile(join(fixtureDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"3"');
+      expect(await readFile(join(fixtureDir, 'b.txt'), 'utf-8')).toMatchInlineSnapshot('"1"');
+      expect(await readFile(join(fixtureDir, 'c.txt'), 'utf-8')).toMatchInlineSnapshot('"2"');
+    });
+  },
+  { repeats: 10 },
+);
 
 describe('support flexible fixture creation API', () => {
   test('write file with callback', async () => {
