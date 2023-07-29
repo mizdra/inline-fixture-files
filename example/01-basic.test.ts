@@ -5,29 +5,26 @@ import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
 import { expect, test } from 'vitest';
-import { createIFF } from '../src/index.js';
+import { defineIFFCreator } from '../src/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
-const generateRootDir = () => join(fixtureBaseDir, randomUUID());
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
 
 await rm(fixtureBaseDir, { recursive: true, force: true });
 
 test('eslint reports lint errors', async () => {
-  const iff = await createIFF(
-    {
-      '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
-      'src': {
-        'semi.js': dedent`
+  const iff = await createIFF({
+    '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
+    'src': {
+      'semi.js': dedent`
           var withSemicolon = 1;
           var withoutSemicolon = 2
         `,
-      },
-      // The above can be written in abbreviated form:
-      // 'src/semi.js': dedent`...`,
     },
-    { generateRootDir },
-  );
+    // The above can be written in abbreviated form:
+    // 'src/semi.js': dedent`...`,
+  });
 
   const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
   const results = await eslint.lintFiles([iff.paths['src/semi.js']]);

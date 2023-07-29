@@ -5,22 +5,19 @@ import { join } from 'node:path';
 import dedent from 'dedent';
 import { ESLint } from 'eslint';
 import { describe, expect, it } from 'vitest';
-import { createIFF } from '../src/index.js';
+import { defineIFFCreator } from '../src/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
-const generateRootDir = () => join(fixtureBaseDir, randomUUID());
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
 
 await rm(fixtureBaseDir, { recursive: true, force: true });
 
 describe('eslint', async () => {
   // Share `.eslintrc.cjs` between test cases.
-  const baseIFF = await createIFF(
-    {
-      '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
-    },
-    { generateRootDir },
-  );
+  const baseIFF = await createIFF({
+    '.eslintrc.cjs': `module.exports = { root: true, rules: { semi: 'error' } };`,
+  });
   it('reports lint errors', async () => {
     // The `fork` allows you to change the `rootDir` of fixtures while inheriting the fixtures from `baseIFF`.
     const iff = await baseIFF.fork({
