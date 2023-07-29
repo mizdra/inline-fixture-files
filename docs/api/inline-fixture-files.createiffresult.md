@@ -17,7 +17,7 @@ export interface CreateIFFResult<Paths extends Record<string, string>>
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [paths](./inline-fixture-files.createiffresult.paths.md) |  | Paths | The paths of the fixtures. It is useful to get the path of fixtures in type safety. |
-|  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The path of the fixture root directory. This path is normalized using <code>path.resolve</code>. |
+|  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The path of the fixture root directory. |
 
 ## Methods
 

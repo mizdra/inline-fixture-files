@@ -4,7 +4,7 @@
 
 ## CreateIFFResult.rootDir property
 
-The path of the fixture root directory. This path is normalized using `path.resolve`<!-- -->.
+The path of the fixture root directory.
 
 **Signature:**
 
