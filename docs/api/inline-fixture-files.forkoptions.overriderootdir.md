@@ -9,5 +9,5 @@ The path to the root directory of the fixture. If this option is passed, the val
 **Signature:**
 
 ```typescript
-overrideRootDir?: string;
+overrideRootDir?: string | undefined;
 ```
