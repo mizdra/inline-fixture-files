@@ -45,6 +45,8 @@ export async function createIFFImpl(directory: Directory, baseDir: string): Prom
     if (name.includes(sepForPosix.repeat(2)))
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
+    // TODO: Write files in parallel
+
     const path = join(baseDir, name);
     if (item === null) {
       // noop
