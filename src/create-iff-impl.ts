@@ -38,14 +38,12 @@ function throwFixtureCreationError(path: string, cause: unknown, throwByFlexible
 export async function createIFFImpl(directory: Directory, baseDir: string): Promise<void> {
   await mkdir(baseDir, { recursive: true }).catch((cause) => throwFixtureCreationError(baseDir, cause));
 
-  for (const [name, item] of Object.entries(directory)) {
+  async function processItem(name: string, item: DirectoryItem): Promise<void> {
     // TODO: Extract to `validateDirectory` function
     if (name.startsWith(sepForPosix)) throw new Error(`Item name must not start with separator: ${name}`);
     if (name.endsWith(sepForPosix)) throw new Error(`Item name must not end with separator: ${name}`);
     if (name.includes(sepForPosix.repeat(2)))
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
-
-    // TODO: Write files in parallel
 
     const path = join(baseDir, name);
     if (item === null) {
@@ -66,4 +64,6 @@ export async function createIFFImpl(directory: Directory, baseDir: string): Prom
       await createIFFImpl(item, path);
     }
   }
+
+  await Promise.all(Object.entries(directory).map(async ([name, item]) => processItem(name, item)));
 }

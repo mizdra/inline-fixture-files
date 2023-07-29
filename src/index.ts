@@ -192,6 +192,10 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
  * The path must be in POSIX-style (`'dir/file.txt'`).
  * Use of Windows-style path (`'dir\\file.txt'`) is an undefined behavior.
  *
+ * @remarks
+ * Fixtures in the same directory are created in parallel.
+ * The order in which fixtures are created changes from time to time.
+ *
  * @example
  * ```ts
  * const iff = await createIFF(
