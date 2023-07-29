@@ -247,7 +247,7 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
       addFixtures(additionalDirectory) {
         return createIFF(
           {
-            ...Object.fromEntries(Object.keys(getPaths(directory, rootDir)).map((path) => [path, async () => {}])),
+            ...Object.fromEntries(Object.keys(getPaths(directory, rootDir)).map((path) => [path, null])),
             ...additionalDirectory,
           },
           { overrideRootDir: rootDir },
@@ -262,7 +262,7 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
 
         const forkedIff = await createIFF(
           {
-            ...Object.fromEntries(Object.keys(getPaths(directory, rootDir)).map((path) => [path, async () => {}])),
+            ...Object.fromEntries(Object.keys(getPaths(directory, rootDir)).map((path) => [path, null])),
             ...additionalDirectory,
           },
           { ...options, overrideRootDir: newRootDir },
