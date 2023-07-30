@@ -223,3 +223,7 @@ expectType<{
   'nested/directory': string;
 }>(iff2.paths);
 ```
+
+## Prior art
+
+- [inline-fixtures](https://github.com/GoogleCloudPlatform/inline-fixtures)
