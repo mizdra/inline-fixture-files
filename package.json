@@ -1,7 +1,7 @@
 {
   "name": "@mizdra/inline-fixture-files",
   "description": "The utility for writing fixture files inline.",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "type": "module",
   "sideEffects": false,
   "repository": "https://github.com/mizdra/inline-fs-fixtures.git",
