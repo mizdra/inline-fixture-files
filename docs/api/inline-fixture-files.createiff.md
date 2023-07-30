@@ -28,9 +28,9 @@ const iff = await createIFF(
     'a.txt': 'b-a',
   },
   'c/a/a.txt': 'c-a-a',
-}, fixturesDir);
-expect(await readFile(join(fixturesDir, 'a.txt'), 'utf-8')).toBe('a');
-expect(await readFile(join(fixturesDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
-expect(await readFile(join(fixturesDir, 'c/a/a.txt'), 'utf-8')).toBe('c-a-a');
+});
+expect(await readFile(join(iff.rootDir, 'a.txt'), 'utf-8')).toBe('a');
+expect(await readFile(join(iff.rootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+expect(await readFile(join(iff.rootDir, 'c/a/a.txt'), 'utf-8')).toBe('c-a-a');
 ```
 

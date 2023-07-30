@@ -23,11 +23,10 @@ string
 ```ts
 import { randomUUID } from 'node:crypto';
 
-const fixtureBaseDir = join(tmpdir(), 'your-app-name', 'fixtures');
-const iff = await createIFF(
-  { 'a.txt': 'a', },
-  { generateRootDir: () => join(fixtureBaseDir, randomUUID()) },
-);
+const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
+
+const iff = await createIFF({ 'a.txt': 'a', });
 const forkedIff = await iff.fork({ 'b.txt': 'b' });
 
 expect(iff.rootDir).not.toBe(forkedIff.rootDir);

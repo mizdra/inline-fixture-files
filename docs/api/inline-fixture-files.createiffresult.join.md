@@ -27,7 +27,8 @@ string
 This is useful for generating paths to files not created by `createIFF`<!-- -->.
 
 ```ts
-const iff = await createIFF({ 'a.txt': 'a' }, fixturesDir);
+const createIFF = defineIFFCreator({ generateRootDir: () => fixturesDir });
+const iff = await createIFF({ 'a.txt': 'a' });
 expect(iff.join('a.txt')).toBe(join(fixturesDir, 'a.txt'));
 expect(iff.join('non-existent.txt')).toBe(join(fixturesDir, 'non-existent.txt'));
 ```

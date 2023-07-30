@@ -56,10 +56,10 @@ import { expect, test } from 'vitest';
 import { defineIFFCreator } from '@mizdra/inline-fixture-files';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
-const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
+const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
 
-await rm(fixtureBaseDir, { recursive: true, force: true });
+await rm(fixtureDir, { recursive: true, force: true });
 
 test('eslint reports lint errors', async () => {
   const iff = await createIFF({
@@ -102,10 +102,10 @@ import { describe, expect, it } from 'vitest';
 import { defineIFFCreator } from '@mizdra/inline-fixture-files';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
-const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
+const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
 
-await rm(fixtureBaseDir, { recursive: true, force: true });
+await rm(fixtureDir, { recursive: true, force: true });
 
 describe('eslint', async () => {
   // Share `.eslintrc.cjs` between test cases.
@@ -160,8 +160,8 @@ import { writeFile, utimes, cp, symlink, mkdir } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-const fixtureBaseDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
-const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureBaseDir, randomUUID()) });
+const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
 
 // Example: File
 const iff1 = await createIFF({

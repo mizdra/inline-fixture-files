@@ -28,11 +28,10 @@ export interface DefineIFFCreatorOptions {
    * ```ts
    * import { randomUUID } from 'node:crypto';
    *
-   * const fixtureBaseDir = join(tmpdir(), 'your-app-name', 'fixtures');
-   * const iff = await createIFF(
-   *   { 'a.txt': 'a', },
-   *   { generateRootDir: () => join(fixtureBaseDir, randomUUID()) },
-   * );
+   * const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
+   * const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
+   *
+   * const iff = await createIFF({ 'a.txt': 'a', });
    * const forkedIff = await iff.fork({ 'b.txt': 'b' });
    *
    * expect(iff.rootDir).not.toBe(forkedIff.rootDir);
@@ -76,23 +75,24 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
    * The paths of the fixtures. It is useful to get the path of fixtures in type safety.
    *
    * @example
-   * For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === join(fixturesDir, 'a.txt')`.
+   * For example, if you create a fixture `a.txt`, then `iff.paths['a.txt'] === join(iff.rootDir, 'a.txt')`.
    *
    * ```ts
+   * const createIFF = defineIFFCreator({ generateRootDir: () => fixturesDir });
    * const iff = await createIFF({
    *   'a.txt': 'a',
    *   'b': {
    *      'a.txt': 'b-a',
    *   },
    *   'c/a/a.txt': 'c-a-a',
-   * }, fixturesDir);
+   * });
    * expect(iff.paths).toStrictEqual({
-   *   'a.txt': join(fixturesDir, 'a.txt'),
-   *   'b': join(fixturesDir, 'b'),
-   *   'b/a.txt': join(fixturesDir, 'b/a.txt'),
-   *   'c': join(fixturesDir, 'c'),
-   *   'c/a': join(fixturesDir, 'c/a'),
-   *   'c/a/a.txt': join(fixturesDir, 'c/a/a.txt'),
+   *   'a.txt': join(iff.rootDir, 'a.txt'),
+   *   'b': join(iff.rootDir, 'b'),
+   *   'b/a.txt': join(iff.rootDir, 'b/a.txt'),
+   *   'c': join(iff.rootDir, 'c'),
+   *   'c/a': join(iff.rootDir, 'c/a'),
+   *   'c/a/a.txt': join(iff.rootDir, 'c/a/a.txt'),
    * });
    * ```
    *
@@ -108,7 +108,7 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
    *   ['d' as string]: {
    *     'a.txt': 'd-a',
    *   },
-   * }, fixturesDir);
+   * });
    * expectType<{
    *   'a.txt': string;
    *   'b': string;
@@ -124,7 +124,8 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
    * This is useful for generating paths to files not created by `createIFF`.
    *
    * ```ts
-   * const iff = await createIFF({ 'a.txt': 'a' }, fixturesDir);
+   * const createIFF = defineIFFCreator({ generateRootDir: () => fixturesDir });
+   * const iff = await createIFF({ 'a.txt': 'a' });
    * expect(iff.join('a.txt')).toBe(join(fixturesDir, 'a.txt'));
    * expect(iff.join('non-existent.txt')).toBe(join(fixturesDir, 'non-existent.txt'));
    * ```
@@ -156,25 +157,27 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
    *
    * @example
    * ```ts
+   * const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
+   *
    * const baseIff = await createIFF({
    *   'a.txt': 'a',
    *   'b/a.txt': 'b-a',
    *   },
-   * }, { rootDir: baseRootDir });
+   * });
    * const forkedIff = await baseIff.fork({
    *   'b/b.txt': 'b-b',
    *   'c.txt': 'c',
-   * }, { rootDir: forkedRootDir });
+   * });
    *
    * // `forkedIff` inherits fixtures from `baseIff`.
-   * expect(await readFile(join(forkedRootDir, 'a.txt'), 'utf-8')).toBe('a');
-   * expect(await readFile(join(forkedRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
-   * expect(await readFile(join(forkedRootDir, 'b/b.txt'), 'utf-8')).toBe('b-b');
-   * expect(await readFile(join(forkedRootDir, 'c.txt'), 'utf-8')).toBe('c');
+   * expect(await readFile(join(forkedIff.rootDir, 'a.txt'), 'utf-8')).toBe('a');
+   * expect(await readFile(join(forkedIff.rootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+   * expect(await readFile(join(forkedIff.rootDir, 'b/b.txt'), 'utf-8')).toBe('b-b');
+   * expect(await readFile(join(forkedIff.rootDir, 'c.txt'), 'utf-8')).toBe('c');
    *
    * // The `baseIff` fixtures are left in place.
-   * expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toBe('a');
-   * expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+   * expect(await readFile(join(baseIff.rootDir, 'a.txt'), 'utf-8')).toBe('a');
+   * expect(await readFile(join(baseIff.rootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
    * ```
    * @param additionalDirectory - The definition of fixtures to be added.
    * @param forkOptions -  The fork options.
@@ -205,10 +208,10 @@ export interface CreateIFFResult<Paths extends Record<string, string>> {
  *     'a.txt': 'b-a',
  *   },
  *   'c/a/a.txt': 'c-a-a',
- * }, fixturesDir);
- * expect(await readFile(join(fixturesDir, 'a.txt'), 'utf-8')).toBe('a');
- * expect(await readFile(join(fixturesDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
- * expect(await readFile(join(fixturesDir, 'c/a/a.txt'), 'utf-8')).toBe('c-a-a');
+ * });
+ * expect(await readFile(join(iff.rootDir, 'a.txt'), 'utf-8')).toBe('a');
+ * expect(await readFile(join(iff.rootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+ * expect(await readFile(join(iff.rootDir, 'c/a/a.txt'), 'utf-8')).toBe('c-a-a');
  * ```
  * @param directory - The definition of fixtures to be created.
  * @param options - Options for creating fixtures.
