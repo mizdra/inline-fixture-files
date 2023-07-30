@@ -140,6 +140,9 @@ describe('security test', () => {
     expect(iff.paths['__proto__']).toBe(join(fixtureDir, '__proto__'));
     expect(iff.paths['__proto__/polluted']).toBe(join(fixtureDir, '__proto__/polluted'));
 
+    // You can access prototype with `Object.getPrototypeOf`.
+    expect(Object.getPrototypeOf(iff.paths)).toBe(Object.getPrototypeOf({}));
+
     // eslint-disable-next-line @typescript-eslint/naming-convention
     expectType<{ '__proto__': string; '__proto__/polluted': string }>(iff.paths);
   });
