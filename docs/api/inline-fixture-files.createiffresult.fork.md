@@ -33,24 +33,26 @@ The copy operation will attempt to create a copy-on-write reflink. If the platfo
 
 
 ```ts
+const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
+
 const baseIff = await createIFF({
   'a.txt': 'a',
   'b/a.txt': 'b-a',
   },
-}, { rootDir: baseRootDir });
+});
 const forkedIff = await baseIff.fork({
   'b/b.txt': 'b-b',
   'c.txt': 'c',
-}, { rootDir: forkedRootDir });
+});
 
 // `forkedIff` inherits fixtures from `baseIff`.
-expect(await readFile(join(forkedRootDir, 'a.txt'), 'utf-8')).toBe('a');
-expect(await readFile(join(forkedRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
-expect(await readFile(join(forkedRootDir, 'b/b.txt'), 'utf-8')).toBe('b-b');
-expect(await readFile(join(forkedRootDir, 'c.txt'), 'utf-8')).toBe('c');
+expect(await readFile(join(forkedIff.rootDir, 'a.txt'), 'utf-8')).toBe('a');
+expect(await readFile(join(forkedIff.rootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+expect(await readFile(join(forkedIff.rootDir, 'b/b.txt'), 'utf-8')).toBe('b-b');
+expect(await readFile(join(forkedIff.rootDir, 'c.txt'), 'utf-8')).toBe('c');
 
 // The `baseIff` fixtures are left in place.
-expect(await readFile(join(baseRootDir, 'a.txt'), 'utf-8')).toBe('a');
-expect(await readFile(join(baseRootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
+expect(await readFile(join(baseIff.rootDir, 'a.txt'), 'utf-8')).toBe('a');
+expect(await readFile(join(baseIff.rootDir, 'b/a.txt'), 'utf-8')).toBe('b-a');
 ```
 

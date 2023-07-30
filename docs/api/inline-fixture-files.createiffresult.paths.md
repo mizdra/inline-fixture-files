@@ -14,23 +14,24 @@ paths: Paths;
 
 ## Example
 
-For example, if you create a fixture `a.txt`<!-- -->, then `iff.paths['a.txt'] === join(fixturesDir, 'a.txt')`<!-- -->.
+For example, if you create a fixture `a.txt`<!-- -->, then `iff.paths['a.txt'] === join(iff.rootDir, 'a.txt')`<!-- -->.
 
 ```ts
+const createIFF = defineIFFCreator({ generateRootDir: () => fixturesDir });
 const iff = await createIFF({
   'a.txt': 'a',
   'b': {
      'a.txt': 'b-a',
   },
   'c/a/a.txt': 'c-a-a',
-}, fixturesDir);
+});
 expect(iff.paths).toStrictEqual({
-  'a.txt': join(fixturesDir, 'a.txt'),
-  'b': join(fixturesDir, 'b'),
-  'b/a.txt': join(fixturesDir, 'b/a.txt'),
-  'c': join(fixturesDir, 'c'),
-  'c/a': join(fixturesDir, 'c/a'),
-  'c/a/a.txt': join(fixturesDir, 'c/a/a.txt'),
+  'a.txt': join(iff.rootDir, 'a.txt'),
+  'b': join(iff.rootDir, 'b'),
+  'b/a.txt': join(iff.rootDir, 'b/a.txt'),
+  'c': join(iff.rootDir, 'c'),
+  'c/a': join(iff.rootDir, 'c/a'),
+  'c/a/a.txt': join(iff.rootDir, 'c/a/a.txt'),
 });
 ```
 The `paths` keys are strictly typed. However, index signatures are excluded for convenience.
@@ -45,7 +46,7 @@ const iff = await createIFF({
   ['d' as string]: {
     'a.txt': 'd-a',
   },
-}, fixturesDir);
+});
 expectType<{
   'a.txt': string;
   'b': string;
