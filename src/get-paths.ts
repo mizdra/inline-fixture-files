@@ -51,8 +51,14 @@ export function getPaths<T extends Directory>(directory: T, rootDir: string, pre
       throw new Error(`Item name must not contain consecutive separators: ${name}`);
 
     for (const n of getSelfAndUpperPaths(name)) {
-      // TODO: Is this safe?
-      paths[joinForPosix(prefix, n)] = join(rootDir, prefix, n);
+      // NOTE: Use `Object.defineProperty(obj, prop, { value })` instead of `obj[prop] = value` to allow `paths['__proto__']`.
+      // ref: https://2ality.com/2015/09/proto-es6.html#defining-__proto__
+      Object.defineProperty(paths, joinForPosix(prefix, n), {
+        value: join(rootDir, prefix, n),
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      });
     }
 
     if (isDirectory(item)) {
