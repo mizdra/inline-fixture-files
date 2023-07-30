@@ -75,6 +75,76 @@ test('integration test', async () => {
   expect(await readFile(iff4.paths['d.txt'], 'utf-8')).toMatchInlineSnapshot('"d"');
 });
 
+describe('security test', () => {
+  const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir });
+
+  test('inline-fixture-files does not take care of non-computed __proto__ property in the literal', async () => {
+    // NOTE: The non-computed __proto__ property in the literal is strange, it rewrites the prototype of the object.
+    //
+    // ref: https://2ality.com/2015/09/proto-es6.html#the-property-key-__proto__-as-an-operator-in-an-object-literal
+    // ref: https://262.ecma-international.org/14.0/#sec-runtime-semantics-propertydefinitionevaluation
+    //
+    // It does not pollute the prototypes of all objects like common prototype pollution, so it is less dangerous.
+    // However, we need to be careful with it. The responsibility for avoiding this lies with the user,
+    // not with inline-fixture-files.
+
+    const directory = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      __proto__: { polluted: '1' },
+    } as const;
+
+    // The non-computed __proto__ property in the literal pollutes only the prototype of the object.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((directory as any).polluted).toBe('1');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(({} as any).polluted).toBeUndefined();
+    expect(Object.getPrototypeOf(directory)).not.toBe(Object.getPrototypeOf({}));
+
+    const iff = await createIFF(directory);
+
+    // The non-computed __proto__ field is not included in `paths` because it is not enumerable.
+    // Also, the `__proto__` field in `paths` is not polluted.
+    // eslint-disable-next-line no-proto
+    expect(iff.paths['__proto__']).toBe(Object.getPrototypeOf({}));
+    expect(iff.paths['__proto__/polluted']).toBeUndefined();
+
+    // However, the type of `paths` contains `__proto__` field.
+    // This is due to bugs in TypeScript.
+    //
+    // ref: https://github.com/microsoft/TypeScript/issues/13933, https://github.com/microsoft/TypeScript/issues/38385
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    expectType<{ '__proto__': string; '__proto__/polluted': string }>(iff.paths);
+  });
+
+  test('inline-fixture-files treats computed __proto__ property the same as normal properties', async () => {
+    // NOTE: The computed __proto__ property in the literal behaves like a normal property.
+    // inline-fixture-files also treats it like normal properties.
+
+    const directory = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      ['__proto__']: { polluted: '1' },
+    } as const;
+
+    // The computed __proto__ property in the literal does not pollute the prototype of object.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((directory as any).polluted).toBeUndefined();
+    // eslint-disable-next-line no-proto
+    expect(directory['__proto__']).toStrictEqual({ polluted: '1' });
+    expect(Object.getPrototypeOf(directory)).toBe(Object.getPrototypeOf({}));
+
+    const iff = await createIFF(directory);
+
+    // The computed __proto__ field is included in `paths` because it is enumerable.
+    // Also, the `__proto__` field in `paths` is overwritten.
+    // eslint-disable-next-line no-proto
+    expect(iff.paths['__proto__']).toBe(join(fixtureDir, '__proto__'));
+    expect(iff.paths['__proto__/polluted']).toBe(join(fixtureDir, '__proto__/polluted'));
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    expectType<{ '__proto__': string; '__proto__/polluted': string }>(iff.paths);
+  });
+});
+
 describe('defineIFFCreator', () => {
   test('generateRootDir', async () => {
     const generateRootDir = vi
