@@ -29,7 +29,7 @@
   "prettier": "@mizdra/prettier-config-mizdra",
   "devDependencies": {
     "@microsoft/api-documenter": "^7.22.32",
-    "@microsoft/api-extractor": "^7.36.0",
+    "@microsoft/api-extractor": "^7.36.3",
     "@mizdra/eslint-config-mizdra": "^2.0.0",
     "@mizdra/prettier-config-mizdra": "^1.0.0",
     "@tsconfig/node18": "^2.0.1",
