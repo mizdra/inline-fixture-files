@@ -68,3 +68,11 @@ export function getPaths<T extends Directory>(directory: T, rootDir: string, pre
   }
   return paths as unknown as FlattenDirectory<T>;
 }
+
+export function changeRootDirOfPaths<T extends FlattenDirectory<Directory>>(paths: T, newRootDir: string): T {
+  const newPaths: Record<string, string> = {};
+  for (const key of Object.keys(paths)) {
+    newPaths[key] = join(newRootDir, key);
+  }
+  return newPaths as unknown as T;
+}
