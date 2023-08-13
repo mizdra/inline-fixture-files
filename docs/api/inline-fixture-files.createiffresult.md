@@ -9,7 +9,7 @@ The return of [CreateIFF](./inline-fixture-files.createiff.md)<!-- -->.
 **Signature:**
 
 ```typescript
-export interface CreateIFFResult<Paths extends Record<string, string>> 
+export interface CreateIFFResult<Paths extends {}> 
 ```
 
 ## Properties
