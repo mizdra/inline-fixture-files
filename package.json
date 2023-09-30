@@ -33,7 +33,7 @@
     "@mizdra/eslint-config-mizdra": "^2.0.0",
     "@mizdra/prettier-config-mizdra": "^1.0.0",
     "@tsconfig/node18": "^2.0.1",
-    "@tsconfig/strictest": "^2.0.1",
+    "@tsconfig/strictest": "^2.0.2",
     "@types/eslint": "^8.44.1",
     "@types/node": "^20.2.5",
     "dedent": "^1.5.1",
