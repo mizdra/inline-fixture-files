@@ -1,11 +1,27 @@
 import { readFile, readdir, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { beforeEach, describe, expect, test } from 'vitest';
-import { createIFFImpl } from './create-iff-impl.js';
+import { beforeEach, describe, expect, expectTypeOf, test } from 'vitest';
+import { MergeDirectory, createIFFImpl } from './create-iff-impl.js';
 import { fixtureDir, sleep } from './test/util.js';
 
 beforeEach(async () => {
   await rm(fixtureDir, { recursive: true, force: true });
+});
+
+test('MergeDirectory', () => {
+  expectTypeOf<MergeDirectory<{ file1: string }, { file2: string }>>().toEqualTypeOf<{
+    file1: string;
+    file2: string;
+  }>();
+  expectTypeOf<MergeDirectory<{ dir1: { file1: string } }, { dir1: { file2: string } }>>().toEqualTypeOf<{
+    dir1: { file1: string; file2: string };
+  }>();
+  expectTypeOf<MergeDirectory<{ dir1: string }, { dir1: { file1: string } }>>().toEqualTypeOf<{
+    dir1: { file1: string };
+  }>();
+  expectTypeOf<MergeDirectory<{ dir1: { file1: string } }, { dir1: string }>>().toEqualTypeOf<{
+    dir1: { file1: string };
+  }>();
 });
 
 test('basic', async () => {
