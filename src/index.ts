@@ -5,7 +5,7 @@
 
 import { constants, cp, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { Directory, createIFFImpl } from './create-iff-impl.js';
+import { Directory, MergeDirectory, createIFFImpl } from './create-iff-impl.js';
 import { FlattenDirectory, getPaths, changeRootDirOfPaths } from './get-paths.js';
 
 export type { Directory, DirectoryItem, FileType } from './create-iff-impl.js';
@@ -67,7 +67,7 @@ export interface ForkOptions {
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export interface CreateIFFResult<Paths extends {}> {
+export interface CreateIFFResult<T extends Directory> {
   /**
    * The path of the fixture root directory.
    */
@@ -117,7 +117,7 @@ export interface CreateIFFResult<Paths extends {}> {
    * }>(iff.paths);
    * ```
    */
-  paths: Paths;
+  paths: FlattenDirectory<T>;
   /**
    * Join `rootDir` and `paths`. It is equivalent to `require('path').join(rootDir, ...paths)`.
    *
@@ -141,11 +141,15 @@ export interface CreateIFFResult<Paths extends {}> {
    */
   rmFixtures(): Promise<void>;
   /**
+   * Write the fixtures specified in `directory` argument to the fixture root directory.
+   */
+  writeFixtures(__INTERNAL__overrideRootDir?: string): Promise<void>;
+  /**
    * Add fixtures to the fixture root directory.
    * @param additionalDirectory - The definition of fixtures to be added.
    * @returns The {@link CreateIFFResult} with the paths of the added fixtures to {@link CreateIFFResult.paths}.
    */
-  addFixtures<const U extends Directory>(additionalDirectory: U): Promise<CreateIFFResult<Paths & FlattenDirectory<U>>>;
+  addFixtures<const U extends Directory>(additionalDirectory: U): Promise<CreateIFFResult<MergeDirectory<T, U>>>;
   /**
    * Change the root directory and take over the fixture you created.
    *
@@ -186,7 +190,11 @@ export interface CreateIFFResult<Paths extends {}> {
   fork<const U extends Directory>(
     additionalDirectory: U,
     forkOptions?: ForkOptions | undefined,
-  ): Promise<CreateIFFResult<Paths & FlattenDirectory<U>>>;
+  ): Promise<CreateIFFResult<MergeDirectory<T, U>>>;
+  /**
+   * Delete the fixture root directory and write the fixtures specified in `directory` argument again.
+   */
+  reset(): Promise<void>;
 }
 
 /**
@@ -220,11 +228,11 @@ export interface CreateIFFResult<Paths extends {}> {
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type CreateIFF = <const T extends Directory, const U extends {}>(
+export type CreateIFF = <const T extends Directory, U extends Directory = {}>(
   directory: T,
   options?: CreateIFFOptions | undefined,
-  __INTERNAL__prevPaths?: U,
-) => Promise<CreateIFFResult<U & FlattenDirectory<T>>>;
+  __INTERNAL__prevIFF?: CreateIFFResult<U>,
+) => Promise<CreateIFFResult<MergeDirectory<U, T>>>;
 
 /**
  * Define {@link CreateIFF}.
@@ -233,19 +241,19 @@ export type CreateIFF = <const T extends Directory, const U extends {}>(
  */
 export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOptions): CreateIFF {
   // eslint-disable-next-line @typescript-eslint/ban-types
-  async function createIFF<const T extends Directory, const U extends {}>(
+  async function createIFF<const T extends Directory, U extends Directory = {}>(
     directory: T,
     options?: CreateIFFOptions | undefined,
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    __INTERNAL__prevPaths?: U,
-  ): Promise<CreateIFFResult<U & FlattenDirectory<T>>> {
+    __INTERNAL__prevIFF?: CreateIFFResult<U>,
+  ): Promise<CreateIFFResult<MergeDirectory<U, T>>> {
     const rootDir = options?.overrideRootDir ?? defineIFFCreatorOptions.generateRootDir();
     const paths = {
-      ...changeRootDirOfPaths(__INTERNAL__prevPaths ?? ({} as U), rootDir),
+      ...changeRootDirOfPaths(__INTERNAL__prevIFF?.paths ?? ({} as FlattenDirectory<U>), rootDir),
       ...getPaths(directory, rootDir),
-    };
+    } as FlattenDirectory<MergeDirectory<U, T>>;
 
-    const iff: CreateIFFResult<U & FlattenDirectory<T>> = {
+    const iff: CreateIFFResult<MergeDirectory<U, T>> = {
       rootDir,
       paths,
       join(...paths) {
@@ -258,8 +266,13 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
         const files = await readdir(rootDir);
         await Promise.all(files.map(async (file) => rm(iff.join(file), { recursive: true, force: true })));
       },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      async writeFixtures(__INTERNAL__overrideRootDir?: string) {
+        if (__INTERNAL__prevIFF) await __INTERNAL__prevIFF.writeFixtures(__INTERNAL__overrideRootDir ?? rootDir);
+        await createIFFImpl(directory, __INTERNAL__overrideRootDir ?? rootDir);
+      },
       async addFixtures(additionalDirectory) {
-        return createIFF(additionalDirectory, { overrideRootDir: rootDir }, paths);
+        return createIFF(additionalDirectory, { overrideRootDir: rootDir }, iff);
       },
       async fork(additionalDirectory, forkOptions) {
         const newRootDir = forkOptions?.overrideRootDir ?? defineIFFCreatorOptions.generateRootDir();
@@ -267,14 +280,18 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
           throw new Error('New `rootDir` must be different from the `rootDir` generated by `generateRootDir`.');
         }
 
-        const forkedIff = await createIFF(additionalDirectory, { ...options, overrideRootDir: newRootDir }, paths);
+        const forkedIff = await createIFF(additionalDirectory, { ...options, overrideRootDir: newRootDir }, iff);
 
         await cp(rootDir, newRootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
         return forkedIff;
       },
+      async reset() {
+        await iff.rmRootDir();
+        await iff.writeFixtures();
+      },
     };
 
-    await createIFFImpl(directory, rootDir);
+    await iff.writeFixtures();
 
     return iff;
   }

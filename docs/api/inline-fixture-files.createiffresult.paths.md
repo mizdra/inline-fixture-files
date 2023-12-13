@@ -9,7 +9,7 @@ The paths of the fixtures. It is useful to get the path of fixtures in type safe
 **Signature:**
 
 ```typescript
-paths: Paths;
+paths: FlattenDirectory<T>;
 ```
 
 ## Example

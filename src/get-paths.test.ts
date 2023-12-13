@@ -101,10 +101,10 @@ describe('getPaths', () => {
 
   test('throw error when item name starts with separator', () => {
     expect(() => getPaths({ '/a.txt': 'a' }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
-      '"Item name must not start with separator: /a.txt"',
+      `[Error: Item name must not start with separator: /a.txt]`,
     );
     expect(() => getPaths({ '/a': {} }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
-      '"Item name must not start with separator: /a"',
+      `[Error: Item name must not start with separator: /a]`,
     );
     // NOTE: Use of Windows path separator is an undefined behavior.
     expect(() => getPaths({ '\\a.txt': 'a' }, fixtureDir)).not.toThrow();
@@ -112,10 +112,10 @@ describe('getPaths', () => {
 
   test('throw error when item name ends with separator', () => {
     expect(() => getPaths({ 'a.txt/': 'a' }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
-      '"Item name must not end with separator: a.txt/"',
+      `[Error: Item name must not end with separator: a.txt/]`,
     );
     expect(() => getPaths({ 'a/': {} }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
-      '"Item name must not end with separator: a/"',
+      `[Error: Item name must not end with separator: a/]`,
     );
     // NOTE: Use of Windows path separator is an undefined behavior.
     expect(() => getPaths({ 'a.txt\\': 'a' }, fixtureDir)).not.toThrow();
@@ -123,7 +123,7 @@ describe('getPaths', () => {
 
   test('throw error when item name contains consecutive separators', () => {
     expect(() => getPaths({ 'a//a.txt': 'a--a' }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
-      '"Item name must not contain consecutive separators: a//a.txt"',
+      `[Error: Item name must not contain consecutive separators: a//a.txt]`,
     );
   });
 
