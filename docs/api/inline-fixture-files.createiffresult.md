@@ -9,14 +9,14 @@ The return of [CreateIFF](./inline-fixture-files.createiff.md)<!-- -->.
 **Signature:**
 
 ```typescript
-export interface CreateIFFResult<Paths extends {}> 
+export interface CreateIFFResult<T extends Directory> 
 ```
 
 ## Properties
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [paths](./inline-fixture-files.createiffresult.paths.md) |  | Paths | The paths of the fixtures. It is useful to get the path of fixtures in type safety. |
+|  [paths](./inline-fixture-files.createiffresult.paths.md) |  | FlattenDirectory&lt;T&gt; | The paths of the fixtures. It is useful to get the path of fixtures in type safety. |
 |  [rootDir](./inline-fixture-files.createiffresult.rootdir.md) |  | string | The path of the fixture root directory. |
 
 ## Methods
@@ -26,6 +26,8 @@ export interface CreateIFFResult<Paths extends {}>
 |  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to the fixture root directory. |
 |  [fork(additionalDirectory, forkOptions)](./inline-fixture-files.createiffresult.fork.md) | Change the root directory and take over the fixture you created. |
 |  [join(paths)](./inline-fixture-files.createiffresult.join.md) | Join <code>rootDir</code> and <code>paths</code>. It is equivalent to <code>require('path').join(rootDir, ...paths)</code>. |
+|  [reset()](./inline-fixture-files.createiffresult.reset.md) | Delete the fixture root directory and write the fixtures specified in <code>directory</code> argument again. |
 |  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete files under the fixture root directory. |
 |  [rmRootDir()](./inline-fixture-files.createiffresult.rmrootdir.md) | Delete the fixture root directory. |
+|  [writeFixtures(\_\_INTERNAL\_\_overrideRootDir)](./inline-fixture-files.createiffresult.writefixtures.md) | Write the fixtures specified in <code>directory</code> argument to the fixture root directory. |
 
