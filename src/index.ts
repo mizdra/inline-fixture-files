@@ -141,6 +141,10 @@ export interface CreateIFFResult<T extends Directory> {
    */
   rmFixtures(): Promise<void>;
   /**
+   * Write the fixtures specified in `directory` argument to the fixture root directory.
+   */
+  writeFixtures(__INTERNAL__overrideRootDir?: string): Promise<void>;
+  /**
    * Add fixtures to the fixture root directory.
    * @param additionalDirectory - The definition of fixtures to be added.
    * @returns The {@link CreateIFFResult} with the paths of the added fixtures to {@link CreateIFFResult.paths}.
@@ -187,6 +191,10 @@ export interface CreateIFFResult<T extends Directory> {
     additionalDirectory: U,
     forkOptions?: ForkOptions | undefined,
   ): Promise<CreateIFFResult<MergeDirectory<T, U>>>;
+  /**
+   * Delete the fixture root directory and write the fixtures specified in `directory` argument again.
+   */
+  reset(): Promise<void>;
 }
 
 /**
@@ -258,6 +266,11 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
         const files = await readdir(rootDir);
         await Promise.all(files.map(async (file) => rm(iff.join(file), { recursive: true, force: true })));
       },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      async writeFixtures(__INTERNAL__overrideRootDir?: string) {
+        if (__INTERNAL__prevIFF) await __INTERNAL__prevIFF.writeFixtures(__INTERNAL__overrideRootDir ?? rootDir);
+        await createIFFImpl(directory, __INTERNAL__overrideRootDir ?? rootDir);
+      },
       async addFixtures(additionalDirectory) {
         return createIFF(additionalDirectory, { overrideRootDir: rootDir }, iff);
       },
@@ -272,9 +285,13 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
         await cp(rootDir, newRootDir, { recursive: true, mode: constants.COPYFILE_FICLONE });
         return forkedIff;
       },
+      async reset() {
+        await iff.rmRootDir();
+        await iff.writeFixtures();
+      },
     };
 
-    await createIFFImpl(directory, rootDir);
+    await iff.writeFixtures();
 
     return iff;
   }
