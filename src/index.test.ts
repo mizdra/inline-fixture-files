@@ -1,4 +1,4 @@
-import { readFile, readdir, rm } from 'node:fs/promises';
+import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -218,6 +218,29 @@ describe('CreateIFFResult', () => {
     await iff.rmRootDir();
     expect(await exists(fixtureDir)).toBe(false);
   });
+  describe('writeFixtures', () => {
+    test('write fixtures', async () => {
+      const iff = await createIFF({
+        'a.txt': 'a',
+        'b': {
+          'a.txt': 'b-a',
+        },
+      });
+      await iff.rmRootDir();
+      await iff.writeFixtures();
+      expect(await readFile(iff.paths['a.txt'], 'utf-8')).toMatchInlineSnapshot('"a"');
+      expect(await readFile(iff.paths['b/a.txt'], 'utf-8')).toMatchInlineSnapshot('"b-a"');
+    });
+    test('write fixtures of previous iff', async () => {
+      const iff1 = await createIFF({}, { overrideRootDir: join(fixtureDir, 'iff1') });
+      const iff2 = await iff1.addFixtures({ 'a.txt': 'a' });
+      const iff3 = await iff2.fork({ 'b.txt': 'b' }, { overrideRootDir: join(fixtureDir, 'iff3') });
+      await iff3.rmRootDir();
+      await iff3.writeFixtures();
+      expect(await readFile(iff3.paths['a.txt'], 'utf-8')).toMatchInlineSnapshot('"a"');
+      expect(await readFile(iff3.paths['b.txt'], 'utf-8')).toMatchInlineSnapshot('"b"');
+    });
+  });
   describe('addFixtures', () => {
     test('add fixtures', async () => {
       const iff = await createIFF({
@@ -356,5 +379,21 @@ describe('CreateIFFResult', () => {
       // eslint-disable-next-line no-unused-expressions
       iff3.paths['d.txt'];
     });
+  });
+  test('reset', async () => {
+    const iff = await createIFF({
+      'a.txt': 'a',
+    });
+    vi.spyOn(iff, 'rmRootDir');
+    vi.spyOn(iff, 'writeFixtures');
+    await writeFile(iff.paths['a.txt'], '<edited>');
+    expect(await readFile(iff.paths['a.txt'], 'utf-8')).toMatchInlineSnapshot('"<edited>"');
+
+    await iff.reset();
+    expect(await readFile(iff.paths['a.txt'], 'utf-8')).toMatchInlineSnapshot('"a"');
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(iff.rmRootDir).toHaveBeenCalledTimes(1);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(iff.writeFixtures).toHaveBeenCalledTimes(1);
   });
 });
