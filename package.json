@@ -30,7 +30,7 @@
   "devDependencies": {
     "@microsoft/api-documenter": "^7.23.10",
     "@microsoft/api-extractor": "^7.38.1",
-    "@mizdra/eslint-config-mizdra": "^5.0.0",
+    "@mizdra/eslint-config-mizdra": "^6.0.0",
     "@mizdra/prettier-config-mizdra": "^2.0.0",
     "@tsconfig/node18": "^18.2.2",
     "@tsconfig/strictest": "^2.0.2",
