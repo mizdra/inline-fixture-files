@@ -288,7 +288,7 @@ describe('CreateIFFResult', () => {
         'c.txt': string;
       }>(paths);
       // @ts-expect-error
-      // eslint-disable-next-line no-unused-expressions
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       paths['d.txt'];
     });
     test('return utility functions that behave the same as the old ones', async () => {
@@ -376,7 +376,7 @@ describe('CreateIFFResult', () => {
         'c.txt': string;
       }>(iff3.paths);
       // @ts-expect-error
-      // eslint-disable-next-line no-unused-expressions
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       iff3.paths['d.txt'];
     });
   });
