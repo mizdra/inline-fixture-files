@@ -1,7 +1,8 @@
-import { readFile, readdir, rm, stat, utimes, writeFile } from 'node:fs/promises';
+import { readdir, readFile, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { beforeEach, describe, expect, expectTypeOf, test } from 'vitest';
-import { MergeDirectory, createIFFImpl } from './create-iff-impl.js';
+import type { MergeDirectory } from './create-iff-impl.js';
+import { createIFFImpl } from './create-iff-impl.js';
 import { fixtureDir, sleep } from './test/util.js';
 
 beforeEach(async () => {

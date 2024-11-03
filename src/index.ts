@@ -5,8 +5,10 @@
 
 import { constants, cp, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { Directory, MergeDirectory, createIFFImpl } from './create-iff-impl.js';
-import { FlattenDirectory, getPaths, changeRootDirOfPaths } from './get-paths.js';
+import type { Directory, MergeDirectory } from './create-iff-impl.js';
+import { createIFFImpl } from './create-iff-impl.js';
+import type { FlattenDirectory } from './get-paths.js';
+import { changeRootDirOfPaths, getPaths } from './get-paths.js';
 
 export type { Directory, DirectoryItem, FileType } from './create-iff-impl.js';
 export { IFFFixtureCreationError } from './error.js';
@@ -189,7 +191,7 @@ export interface CreateIFFResult<T extends Directory> {
    */
   fork<const U extends Directory>(
     additionalDirectory: U,
-    forkOptions?: ForkOptions | undefined,
+    forkOptions?: ForkOptions,
   ): Promise<CreateIFFResult<MergeDirectory<T, U>>>;
   /**
    * Delete the fixture root directory and write the fixtures specified in `directory` argument again.
@@ -230,7 +232,7 @@ export interface CreateIFFResult<T extends Directory> {
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type CreateIFF = <const T extends Directory, U extends Directory = {}>(
   directory: T,
-  options?: CreateIFFOptions | undefined,
+  options?: CreateIFFOptions,
   __INTERNAL__prevIFF?: CreateIFFResult<U>,
 ) => Promise<CreateIFFResult<MergeDirectory<U, T>>>;
 
@@ -243,7 +245,7 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
   // eslint-disable-next-line @typescript-eslint/ban-types
   async function createIFF<const T extends Directory, U extends Directory = {}>(
     directory: T,
-    options?: CreateIFFOptions | undefined,
+    options?: CreateIFFOptions,
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __INTERNAL__prevIFF?: CreateIFFResult<U>,
   ): Promise<CreateIFFResult<MergeDirectory<U, T>>> {

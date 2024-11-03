@@ -1,9 +1,9 @@
-import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { fixtureDir, exists } from './test/util.js';
 import { defineIFFCreator } from './index.js';
+import { exists, fixtureDir } from './test/util.js';
 
 beforeEach(async () => {
   await rm(fixtureDir, { recursive: true, force: true });
@@ -121,7 +121,6 @@ describe('security test', () => {
     // inline-fixture-files also treats it like normal properties.
 
     const directory = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       ['__proto__']: { polluted: '1' },
     } as const;
 

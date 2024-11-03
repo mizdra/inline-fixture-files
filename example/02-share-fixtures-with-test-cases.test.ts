@@ -7,7 +7,6 @@ import { ESLint } from 'eslint';
 import { describe, expect, it } from 'vitest';
 import { defineIFFCreator } from '../src/index.js';
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
 const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
 

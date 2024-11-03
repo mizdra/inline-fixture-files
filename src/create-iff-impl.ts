@@ -7,7 +7,6 @@ import { IFFFixtureCreationError } from './error.js';
 export type FileType = string | ((path: string) => void) | ((path: string) => Promise<void>) | null;
 
 /** @public */
-// eslint-disable-next-line no-use-before-define
 export type DirectoryItem = FileType | Directory;
 
 /**
