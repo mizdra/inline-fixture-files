@@ -68,7 +68,6 @@ export interface ForkOptions {
  * The return of {@link CreateIFF}.
  * @public
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 export interface CreateIFFResult<T extends Directory> {
   /**
    * The path of the fixture root directory.
@@ -229,7 +228,7 @@ export interface CreateIFFResult<T extends Directory> {
  * @returns An object that provides functions to manipulate the fixtures.
  * @public
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type CreateIFF = <const T extends Directory, U extends Directory = {}>(
   directory: T,
   options?: CreateIFFOptions,
@@ -242,7 +241,7 @@ export type CreateIFF = <const T extends Directory, U extends Directory = {}>(
  * @public
  */
 export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOptions): CreateIFF {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   async function createIFF<const T extends Directory, U extends Directory = {}>(
     directory: T,
     options?: CreateIFFOptions,
