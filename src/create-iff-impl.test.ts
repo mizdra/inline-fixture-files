@@ -104,39 +104,35 @@ test('merge creating fixtures for same directory', async () => {
   expect(await readFile(join(fixtureDir, 'a/b/a.txt'), 'utf-8')).toMatchInlineSnapshot('"a-b-a"');
 });
 
-describe(
-  'write fixtures in parallel',
-  () => {
-    test('write fixtures in the same directory in parallel', async () => {
-      let i = 1;
-      await createIFFImpl(
-        {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          'a.txt': async (path) => {
-            await sleep(30);
-            await writeFile(path, (i++).toString());
-          },
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          'b.txt': async (path) => {
-            await sleep(10);
-            await writeFile(path, (i++).toString());
-          },
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          'c.txt': async (path) => {
-            await sleep(20);
-            await writeFile(path, (i++).toString());
-          },
+describe('write fixtures in parallel', { repeats: 10 }, () => {
+  test('write fixtures in the same directory in parallel', async () => {
+    let i = 1;
+    await createIFFImpl(
+      {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'a.txt': async (path) => {
+          await sleep(30);
+          await writeFile(path, (i++).toString());
         },
-        fixtureDir,
-      );
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'b.txt': async (path) => {
+          await sleep(10);
+          await writeFile(path, (i++).toString());
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'c.txt': async (path) => {
+          await sleep(20);
+          await writeFile(path, (i++).toString());
+        },
+      },
+      fixtureDir,
+    );
 
-      expect(await readFile(join(fixtureDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"3"');
-      expect(await readFile(join(fixtureDir, 'b.txt'), 'utf-8')).toMatchInlineSnapshot('"1"');
-      expect(await readFile(join(fixtureDir, 'c.txt'), 'utf-8')).toMatchInlineSnapshot('"2"');
-    });
-  },
-  { repeats: 10 },
-);
+    expect(await readFile(join(fixtureDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"3"');
+    expect(await readFile(join(fixtureDir, 'b.txt'), 'utf-8')).toMatchInlineSnapshot('"1"');
+    expect(await readFile(join(fixtureDir, 'c.txt'), 'utf-8')).toMatchInlineSnapshot('"2"');
+  });
+});
 
 describe('support flexible fixture creation API', () => {
   test('write file with callback', async () => {
