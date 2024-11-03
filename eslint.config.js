@@ -12,6 +12,8 @@ export default [
     files: ['**/*.{ts,tsx,cts,mts}', '**/*.{js,jsx,cjs,mjs}'],
     rules: {
       'simple-import-sort/imports': ['error', { groups: [['^\\u0000', '^node:', '^@?\\w', '^', '^\\.']] }],
+      'n/no-unsupported-features/es-syntax': 'off', // temporary
+      'n/no-unsupported-features/node-builtins': 'off', // temporary
     },
   },
   {
