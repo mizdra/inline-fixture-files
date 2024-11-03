@@ -27,6 +27,8 @@ describe('eslint', async () => {
         `,
       },
     });
+    // @ts-expect-error -- disable the type error temporarily
+    // TODO: Remove the above comment when the type error is fixed
     const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
     const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
     const formatter = await eslint.loadFormatter('unix');
@@ -45,6 +47,8 @@ describe('eslint', async () => {
         `,
       },
     });
+    // @ts-expect-error -- disable the type error temporarily
+    // TODO: Remove the above comment when the type error is fixed
     const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true, fix: true });
     const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
 

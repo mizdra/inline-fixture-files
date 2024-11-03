@@ -25,6 +25,8 @@ test('eslint reports lint errors', async () => {
     // 'src/semi.js': dedent`...`,
   });
 
+  // @ts-expect-error -- disable the type error temporarily
+  // TODO: Remove the above comment when the type error is fixed
   const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
   const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
   const formatter = await eslint.loadFormatter('unix');
