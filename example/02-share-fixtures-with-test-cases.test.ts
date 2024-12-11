@@ -3,9 +3,11 @@ import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import dedent from 'dedent';
-import { ESLint } from 'eslint';
+import { loadESLint } from 'eslint';
 import { describe, expect, it } from 'vitest';
 import { defineIFFCreator } from '../src/index.js';
+
+const LegacyESLint = await loadESLint({ useFlatConfig: false });
 
 const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
 const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
@@ -27,17 +29,23 @@ describe('eslint', async () => {
         `,
       },
     });
-    // @ts-expect-error -- disable the type error temporarily
-    // TODO: Remove the above comment when the type error is fixed
-    const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
+    const eslint = new LegacyESLint({ cwd: iff.rootDir, useEslintrc: true });
     const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
-    const formatter = await eslint.loadFormatter('unix');
-    const resultText = formatter.format(results);
-    expect(resultText).toStrictEqual(dedent`
-      ${iff.paths['src/semi.js']}:2:25: Missing semicolon. [Error/semi]
-  
-      1 problem
-    `);
+    const formatter = await eslint.loadFormatter('json');
+    const resultText = await formatter.format(results);
+    expect(JSON.parse(resultText)).toStrictEqual([
+      expect.objectContaining({
+        filePath: iff.paths['src/semi.js'],
+        messages: [
+          expect.objectContaining({
+            ruleId: 'semi',
+            message: 'Missing semicolon.',
+            line: 2,
+            column: 25,
+          }),
+        ],
+      }),
+    ]);
   });
   it('fix lint errors', async () => {
     const iff = await baseIFF.fork({
@@ -47,13 +55,11 @@ describe('eslint', async () => {
         `,
       },
     });
-    // @ts-expect-error -- disable the type error temporarily
-    // TODO: Remove the above comment when the type error is fixed
-    const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true, fix: true });
+    const eslint = new LegacyESLint({ cwd: iff.rootDir, useEslintrc: true, fix: true });
     const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
 
     expect(await readFile(iff.paths['src/semi.js'], 'utf8')).toMatchInlineSnapshot('"var withoutSemicolon = 2"');
-    await ESLint.outputFixes(results);
+    await LegacyESLint.outputFixes(results);
     expect(await readFile(iff.paths['src/semi.js'], 'utf8')).toMatchInlineSnapshot('"var withoutSemicolon = 2;"');
   });
 });
