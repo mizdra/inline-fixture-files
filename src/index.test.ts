@@ -1,9 +1,9 @@
-import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { fixtureDir, exists } from './test/util.js';
 import { defineIFFCreator } from './index.js';
+import { exists, fixtureDir } from './test/util.js';
 
 beforeEach(async () => {
   await rm(fixtureDir, { recursive: true, force: true });
@@ -121,7 +121,6 @@ describe('security test', () => {
     // inline-fixture-files also treats it like normal properties.
 
     const directory = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       ['__proto__']: { polluted: '1' },
     } as const;
 
@@ -288,7 +287,7 @@ describe('CreateIFFResult', () => {
         'c.txt': string;
       }>(paths);
       // @ts-expect-error
-      // eslint-disable-next-line no-unused-expressions
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       paths['d.txt'];
     });
     test('return utility functions that behave the same as the old ones', async () => {
@@ -376,7 +375,7 @@ describe('CreateIFFResult', () => {
         'c.txt': string;
       }>(iff3.paths);
       // @ts-expect-error
-      // eslint-disable-next-line no-unused-expressions
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       iff3.paths['d.txt'];
     });
   });

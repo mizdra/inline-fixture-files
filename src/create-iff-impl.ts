@@ -7,7 +7,6 @@ import { IFFFixtureCreationError } from './error.js';
 export type FileType = string | ((path: string) => void) | ((path: string) => Promise<void>) | null;
 
 /** @public */
-// eslint-disable-next-line no-use-before-define
 export type DirectoryItem = FileType | Directory;
 
 /**
@@ -33,20 +32,19 @@ export interface Directory {
  * `MergeDirectory<{ dir1: string }, { dir1: { file1: string } }>` is `{ dir1: { file1: string } }`.
  * `MergeDirectory<{ dir1: { file1: string } }, { dir1: string }>` is `{ dir1: { file1: string } }`.
  */
-export type MergeDirectory<T extends DirectoryItem, U extends DirectoryItem> = T extends Directory
-  ? U extends Directory
-    ? {
-        [K in keyof T | keyof U]: K extends keyof T
-          ? K extends keyof U
-            ? MergeDirectory<T[K], U[K]>
-            : T[K]
-          : K extends keyof U
-          ? U[K]
-          : never;
+export type MergeDirectory<T extends DirectoryItem, U extends DirectoryItem> =
+  T extends Directory ?
+    U extends Directory ?
+      {
+        [K in keyof T | keyof U]: K extends keyof T ?
+          K extends keyof U ?
+            MergeDirectory<T[K], U[K]>
+          : T[K]
+        : K extends keyof U ? U[K]
+        : never;
       }
     : T
-  : U extends Directory
-  ? U
+  : U extends Directory ? U
   : T;
 
 export function isDirectory(item: DirectoryItem): item is Directory {

@@ -4,7 +4,6 @@ import { stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 export const fixtureDir = resolve(realpathSync(tmpdir()), 'inline-fs-fixtures', process.env['VITEST_POOL_ID']!);
 
 export async function exists(path: string): Promise<boolean> {
@@ -14,7 +13,6 @@ export async function exists(path: string): Promise<boolean> {
 }
 
 export function oneOf<const T>(array: T[]): T {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return array[randomInt(0, array.length)]!;
 }
 

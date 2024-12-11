@@ -27,7 +27,7 @@ describe('getPaths', () => {
       'b.txt': string;
     }>(paths);
     // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['c.txt'];
   });
 
@@ -160,19 +160,19 @@ describe('getPaths', () => {
       'b/a.txt': string;
     }>(paths);
     // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['b/b.txt'];
     // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['b/b/a.txt'];
     // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['c.txt'];
     // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['d'];
     // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['d/a.txt'];
   });
   test('support flexible fixture creation API', () => {
@@ -193,7 +193,7 @@ describe('getPaths', () => {
       'utime.txt': string;
     }>(paths);
     // @ts-expect-error
-    // eslint-disable-next-line no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['a.txt'];
   });
 });
@@ -220,6 +220,6 @@ test('allow function and null as items', () => {
     'c.txt': string;
   }>(paths);
   // @ts-expect-error
-  // eslint-disable-next-line no-unused-expressions
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   paths['d.txt'];
 });

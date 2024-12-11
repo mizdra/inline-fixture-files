@@ -9,7 +9,7 @@ Change the root directory and take over the fixture you created.
 **Signature:**
 
 ```typescript
-fork<const U extends Directory>(additionalDirectory: U, forkOptions?: ForkOptions | undefined): Promise<CreateIFFResult<MergeDirectory<T, U>>>;
+fork<const U extends Directory>(additionalDirectory: U, forkOptions?: ForkOptions): Promise<CreateIFFResult<MergeDirectory<T, U>>>;
 ```
 
 ## Parameters
@@ -17,7 +17,7 @@ fork<const U extends Directory>(additionalDirectory: U, forkOptions?: ForkOption
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  additionalDirectory | U | The definition of fixtures to be added. |
-|  forkOptions | [ForkOptions](./inline-fixture-files.forkoptions.md) \| undefined | _(Optional)_ The fork options. |
+|  forkOptions | [ForkOptions](./inline-fixture-files.forkoptions.md) | _(Optional)_ The fork options. |
 
 **Returns:**
 

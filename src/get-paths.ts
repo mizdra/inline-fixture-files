@@ -1,6 +1,7 @@
 import { join } from 'node:path';
-import { join as joinForPosix, dirname as dirnameForPosix, sep as sepForPosix } from 'node:path/posix';
-import { Directory, isDirectory } from './create-iff-impl.js';
+import { dirname as dirnameForPosix, join as joinForPosix, sep as sepForPosix } from 'node:path/posix';
+import type { Directory } from './create-iff-impl.js';
+import { isDirectory } from './create-iff-impl.js';
 
 /** Utility type that converts `{ a: string, [key: string]: any; }` to `{ a: string }`. */
 // ref: https://github.com/type-challenges/type-challenges/issues/3542
@@ -15,15 +16,16 @@ type FiniteStringKeyOf<T> = keyof RemoveIndexSignature<T>;
  * Utility type that converts `{ 'file-1.txt': string, 'dir-1/dir-2': { 'file-2.txt': string } }`
  * to 'file-1.txt' | 'dir-1/dir-2/file-2.txt'.
  */
-type FlattenDirectoryObjectKeys<T extends Record<string, unknown>, Key = FiniteStringKeyOf<T>> = Key extends string
-  ? T[Key] extends Record<string, unknown>
-    ? `${Key}/${FlattenDirectoryObjectKeys<T[Key]>}`
+type FlattenDirectoryObjectKeys<T extends Record<string, unknown>, Key = FiniteStringKeyOf<T>> =
+  Key extends string ?
+    T[Key] extends Record<string, unknown> ?
+      `${Key}/${FlattenDirectoryObjectKeys<T[Key]>}`
     : `${Key}`
   : never;
 
 /** Utility type that converts `'dir-1/dir2/file-1.txt' to 'dir-1' | 'dir-1/dir2' | 'dir-1/dir2/file-1.txt'`. */
-type SelfAndUpperPath<T extends string, Prefix extends string = ''> = T extends `${infer First}/${infer Rest}`
-  ? `${Prefix}${First}` | SelfAndUpperPath<Rest, `${Prefix}${First}/`>
+type SelfAndUpperPath<T extends string, Prefix extends string = ''> =
+  T extends `${infer First}/${infer Rest}` ? `${Prefix}${First}` | SelfAndUpperPath<Rest, `${Prefix}${First}/`>
   : `${Prefix}${T}`;
 
 /**

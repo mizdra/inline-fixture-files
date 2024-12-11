@@ -9,7 +9,7 @@ Create fixtures in the specified directory.
 **Signature:**
 
 ```typescript
-export type CreateIFF = <const T extends Directory, U extends Directory = {}>(directory: T, options?: CreateIFFOptions | undefined, __INTERNAL__prevIFF?: CreateIFFResult<U>) => Promise<CreateIFFResult<MergeDirectory<U, T>>>;
+export type CreateIFF = <const T extends Directory, U extends Directory = {}>(directory: T, options?: CreateIFFOptions, __INTERNAL__prevIFF?: CreateIFFResult<U>) => Promise<CreateIFFResult<MergeDirectory<U, T>>>;
 ```
 **References:** [Directory](./inline-fixture-files.directory.md)<!-- -->, [CreateIFFOptions](./inline-fixture-files.createiffoptions.md)<!-- -->, [CreateIFFResult](./inline-fixture-files.createiffresult.md)
 

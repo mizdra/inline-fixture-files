@@ -3,11 +3,12 @@ import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import dedent from 'dedent';
-import { ESLint } from 'eslint';
+import { loadESLint } from 'eslint';
 import { expect, test } from 'vitest';
 import { defineIFFCreator } from '../src/index.js';
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const LegacyESLint = await loadESLint({ useFlatConfig: false });
+
 const fixtureDir = join(tmpdir(), 'your-app-name', process.env['VITEST_POOL_ID']!);
 const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, randomUUID()) });
 
@@ -26,13 +27,21 @@ test('eslint reports lint errors', async () => {
     // 'src/semi.js': dedent`...`,
   });
 
-  const eslint = new ESLint({ cwd: iff.rootDir, useEslintrc: true });
+  const eslint = new LegacyESLint({ cwd: iff.rootDir, useEslintrc: true });
   const results = await eslint.lintFiles([iff.paths['src/semi.js']]);
-  const formatter = await eslint.loadFormatter('unix');
-  const resultText = formatter.format(results);
-  expect(resultText).toStrictEqual(dedent`
-    ${iff.paths['src/semi.js']}:2:25: Missing semicolon. [Error/semi]
-
-    1 problem
-  `);
+  const formatter = await eslint.loadFormatter('json');
+  const resultText = await formatter.format(results);
+  expect(JSON.parse(resultText)).toStrictEqual([
+    expect.objectContaining({
+      filePath: iff.paths['src/semi.js'],
+      messages: [
+        expect.objectContaining({
+          ruleId: 'semi',
+          message: 'Missing semicolon.',
+          line: 2,
+          column: 25,
+        }),
+      ],
+    }),
+  ]);
 });
