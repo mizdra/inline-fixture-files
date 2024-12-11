@@ -44,9 +44,6 @@
     "typescript": "^5.2.2",
     "vitest": "^2.1.4"
   },
-  "overrides": {
-    "tsconfig-paths": "^4.0.0"
-  },
   "engines": {
     "node": ">=18.0.0"
   },
