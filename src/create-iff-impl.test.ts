@@ -128,9 +128,9 @@ describe('write fixtures in parallel', { repeats: 10 }, () => {
       fixtureDir,
     );
 
-    expect(await readFile(join(fixtureDir, 'a.txt'), 'utf-8')).toMatchInlineSnapshot('"3"');
-    expect(await readFile(join(fixtureDir, 'b.txt'), 'utf-8')).toMatchInlineSnapshot('"1"');
-    expect(await readFile(join(fixtureDir, 'c.txt'), 'utf-8')).toMatchInlineSnapshot('"2"');
+    expect(await readFile(join(fixtureDir, 'a.txt'), 'utf-8')).toBe('3');
+    expect(await readFile(join(fixtureDir, 'b.txt'), 'utf-8')).toBe('1');
+    expect(await readFile(join(fixtureDir, 'c.txt'), 'utf-8')).toBe('2');
   });
 });
 
