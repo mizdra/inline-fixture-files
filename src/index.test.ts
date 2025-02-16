@@ -240,6 +240,10 @@ describe('CreateIFFResult', () => {
       expect(iff.join('a.txt')).toBe(slash(join(fixtureDir, 'a.txt')));
     });
   });
+  test('readFile', async () => {
+    const iff = await createIFF({ 'a.txt': 'a' });
+    expect(await iff.readFile('a.txt')).toMatchInlineSnapshot('"a"');
+  });
   test('rmFixtures', async () => {
     const iff = await createIFF({
       'a.txt': 'a',
