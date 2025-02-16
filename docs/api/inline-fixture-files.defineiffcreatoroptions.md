@@ -12,6 +12,12 @@ The options for [defineIFFCreator()](./inline-fixture-files.defineiffcreator.md)
 export interface DefineIFFCreatorOptions 
 ```
 
+## Properties
+
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [unixStylePath?](./inline-fixture-files.defineiffcreatoroptions.unixstylepath.md) |  | boolean \| undefined | _(Optional)_ Use unix-style path separator (<code>/</code>) for paths on windows. |
+
 ## Methods
 
 |  Method | Description |

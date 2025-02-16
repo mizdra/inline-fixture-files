@@ -2,7 +2,7 @@ import { utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { describe, expect, test } from 'vitest';
-import { getPaths, getSelfAndUpperPaths } from './get-paths.js';
+import { getPaths, getSelfAndUpperPaths, slash } from './get-paths.js';
 import { fixtureDir } from './test/util.js';
 
 test('getSelfAndUpperPaths', () => {
@@ -17,6 +17,7 @@ describe('getPaths', () => {
         'b.txt': 'b',
       },
       fixtureDir,
+      false,
     );
     expect(paths).toStrictEqual({
       'a.txt': join(fixtureDir, 'a.txt'),
@@ -43,6 +44,7 @@ describe('getPaths', () => {
         },
       },
       fixtureDir,
+      false,
     );
     expect(paths).toStrictEqual({
       'a.txt': join(fixtureDir, 'a.txt'),
@@ -74,6 +76,7 @@ describe('getPaths', () => {
         },
       },
       fixtureDir,
+      false,
     );
     expect(paths).toStrictEqual({
       'a': join(fixtureDir, 'a'),
@@ -100,29 +103,29 @@ describe('getPaths', () => {
   });
 
   test('throw error when item name starts with separator', () => {
-    expect(() => getPaths({ '/a.txt': 'a' }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
+    expect(() => getPaths({ '/a.txt': 'a' }, fixtureDir, false)).toThrowErrorMatchingInlineSnapshot(
       `[Error: Item name must not start with separator: /a.txt]`,
     );
-    expect(() => getPaths({ '/a': {} }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
+    expect(() => getPaths({ '/a': {} }, fixtureDir, false)).toThrowErrorMatchingInlineSnapshot(
       `[Error: Item name must not start with separator: /a]`,
     );
     // NOTE: Use of Windows path separator is an undefined behavior.
-    expect(() => getPaths({ '\\a.txt': 'a' }, fixtureDir)).not.toThrow();
+    expect(() => getPaths({ '\\a.txt': 'a' }, fixtureDir, false)).not.toThrow();
   });
 
   test('throw error when item name ends with separator', () => {
-    expect(() => getPaths({ 'a.txt/': 'a' }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
+    expect(() => getPaths({ 'a.txt/': 'a' }, fixtureDir, false)).toThrowErrorMatchingInlineSnapshot(
       `[Error: Item name must not end with separator: a.txt/]`,
     );
-    expect(() => getPaths({ 'a/': {} }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
+    expect(() => getPaths({ 'a/': {} }, fixtureDir, false)).toThrowErrorMatchingInlineSnapshot(
       `[Error: Item name must not end with separator: a/]`,
     );
     // NOTE: Use of Windows path separator is an undefined behavior.
-    expect(() => getPaths({ 'a.txt\\': 'a' }, fixtureDir)).not.toThrow();
+    expect(() => getPaths({ 'a.txt\\': 'a' }, fixtureDir, false)).not.toThrow();
   });
 
   test('throw error when item name contains consecutive separators', () => {
-    expect(() => getPaths({ 'a//a.txt': 'a--a' }, fixtureDir)).toThrowErrorMatchingInlineSnapshot(
+    expect(() => getPaths({ 'a//a.txt': 'a--a' }, fixtureDir, false)).toThrowErrorMatchingInlineSnapshot(
       `[Error: Item name must not contain consecutive separators: a//a.txt]`,
     );
   });
@@ -143,6 +146,7 @@ describe('getPaths', () => {
         },
       },
       fixtureDir,
+      false,
     );
     expect(paths).toStrictEqual({
       'a.txt': join(fixtureDir, 'a.txt'),
@@ -185,6 +189,7 @@ describe('getPaths', () => {
         },
       },
       fixtureDir,
+      false,
     );
     expect(paths).toStrictEqual({
       'utime.txt': join(fixtureDir, 'utime.txt'),
@@ -196,30 +201,47 @@ describe('getPaths', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['a.txt'];
   });
-});
-
-test('allow function and null as items', () => {
-  const paths = getPaths(
-    {
-      'a.txt': null,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'b.txt': () => {},
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'c.txt': async () => {},
-    },
-    fixtureDir,
-  );
-  expect(paths).toStrictEqual({
-    'a.txt': join(fixtureDir, 'a.txt'),
-    'b.txt': join(fixtureDir, 'b.txt'),
-    'c.txt': join(fixtureDir, 'c.txt'),
+  test('allow function and null as items', () => {
+    const paths = getPaths(
+      {
+        'a.txt': null,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'b.txt': () => {},
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'c.txt': async () => {},
+      },
+      fixtureDir,
+      false,
+    );
+    expect(paths).toStrictEqual({
+      'a.txt': join(fixtureDir, 'a.txt'),
+      'b.txt': join(fixtureDir, 'b.txt'),
+      'c.txt': join(fixtureDir, 'c.txt'),
+    });
+    expectType<{
+      'a.txt': string;
+      'b.txt': string;
+      'c.txt': string;
+    }>(paths);
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    paths['d.txt'];
   });
-  expectType<{
-    'a.txt': string;
-    'b.txt': string;
-    'c.txt': string;
-  }>(paths);
-  // @ts-expect-error
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  paths['d.txt'];
+  test.runIf(process.platform === 'win32')('convert windows path separator to unix path separator', () => {
+    const paths = getPaths(
+      {
+        'a.txt': 'a',
+        'b': {
+          'a.txt': 'b-a',
+        },
+      },
+      fixtureDir,
+      true,
+    );
+    expect(paths).toStrictEqual({
+      'a.txt': slash(join(fixtureDir, 'a.txt')),
+      'b': slash(join(fixtureDir, 'b')),
+      'b/a.txt': slash(join(fixtureDir, 'b/a.txt')),
+    });
+  });
 });

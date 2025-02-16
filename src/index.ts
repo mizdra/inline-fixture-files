@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import type { Directory, MergeDirectory } from './create-iff-impl.js';
 import { createIFFImpl } from './create-iff-impl.js';
 import type { FlattenDirectory } from './get-paths.js';
-import { changeRootDirOfPaths, getPaths } from './get-paths.js';
+import { changeRootDirOfPaths, getPaths, slash } from './get-paths.js';
 
 export type { Directory, DirectoryItem, FileType } from './create-iff-impl.js';
 export { IFFFixtureCreationError } from './error.js';
@@ -40,6 +40,8 @@ export interface DefineIFFCreatorOptions {
    * ```
    */
   generateRootDir(): string;
+  /** Use unix-style path separator (`/`) for paths on windows. */
+  unixStylePath?: boolean | undefined;
 }
 
 /**
@@ -249,16 +251,17 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
     __INTERNAL__prevIFF?: CreateIFFResult<U>,
   ): Promise<CreateIFFResult<MergeDirectory<U, T>>> {
     const rootDir = options?.overrideRootDir ?? defineIFFCreatorOptions.generateRootDir();
+    const unixStylePath = defineIFFCreatorOptions.unixStylePath ?? false;
     const paths = {
-      ...changeRootDirOfPaths(__INTERNAL__prevIFF?.paths ?? ({} as FlattenDirectory<U>), rootDir),
-      ...getPaths(directory, rootDir),
+      ...changeRootDirOfPaths(__INTERNAL__prevIFF?.paths ?? ({} as FlattenDirectory<U>), rootDir, unixStylePath),
+      ...getPaths(directory, rootDir, unixStylePath),
     } as FlattenDirectory<MergeDirectory<U, T>>;
 
     const iff: CreateIFFResult<MergeDirectory<U, T>> = {
       rootDir,
       paths,
       join(...paths) {
-        return join(rootDir, ...paths);
+        return unixStylePath ? slash(join(rootDir, ...paths)) : join(rootDir, ...paths);
       },
       async rmRootDir() {
         await rm(rootDir, { recursive: true, force: true });
