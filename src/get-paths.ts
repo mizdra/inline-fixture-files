@@ -43,7 +43,12 @@ export function getSelfAndUpperPaths(path: string): string[] {
   return [path, ...getSelfAndUpperPaths(parent)];
 }
 
-export function getPaths<T extends Directory>(directory: T, rootDir: string, prefix = ''): FlattenDirectory<T> {
+export function getPaths<T extends Directory>(
+  directory: T,
+  rootDir: string,
+  useUnixPathSeparator: boolean,
+  prefix = '',
+): FlattenDirectory<T> {
   let paths: Record<string, string> = {};
   for (const [name, item] of Object.entries(directory)) {
     // TODO: Extract to `validateDirectory` function
@@ -56,7 +61,7 @@ export function getPaths<T extends Directory>(directory: T, rootDir: string, pre
       // NOTE: Use `Object.defineProperty(obj, prop, { value })` instead of `obj[prop] = value` to allow `paths['__proto__']`.
       // ref: https://2ality.com/2015/09/proto-es6.html#defining-__proto__
       Object.defineProperty(paths, joinForPosix(prefix, n), {
-        value: join(rootDir, prefix, n),
+        value: useUnixPathSeparator ? slash(join(rootDir, prefix, n)) : join(rootDir, prefix, n),
         enumerable: true,
         writable: true,
         configurable: true,
@@ -64,17 +69,25 @@ export function getPaths<T extends Directory>(directory: T, rootDir: string, pre
     }
 
     if (isDirectory(item)) {
-      const newPaths = getPaths(item, rootDir, joinForPosix(prefix, name));
+      const newPaths = getPaths(item, rootDir, useUnixPathSeparator, joinForPosix(prefix, name));
       paths = { ...paths, ...newPaths };
     }
   }
   return paths as unknown as FlattenDirectory<T>;
 }
 
-export function changeRootDirOfPaths<T extends FlattenDirectory<Directory>>(paths: T, newRootDir: string): T {
+export function changeRootDirOfPaths<T extends FlattenDirectory<Directory>>(
+  paths: T,
+  newRootDir: string,
+  useUnixPathSeparator: boolean,
+): T {
   const newPaths: Record<string, string> = {};
   for (const key of Object.keys(paths)) {
-    newPaths[key] = join(newRootDir, key);
+    newPaths[key] = useUnixPathSeparator ? slash(join(newRootDir, key)) : join(newRootDir, key);
   }
   return newPaths as unknown as T;
+}
+
+export function slash(path: string): string {
+  return path.replace(/\\/gu, '/');
 }
