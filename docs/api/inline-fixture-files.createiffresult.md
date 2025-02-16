@@ -26,6 +26,7 @@ export interface CreateIFFResult<T extends Directory>
 |  [addFixtures(additionalDirectory)](./inline-fixture-files.createiffresult.addfixtures.md) | Add fixtures to the fixture root directory. |
 |  [fork(additionalDirectory, forkOptions)](./inline-fixture-files.createiffresult.fork.md) | Change the root directory and take over the fixture you created. |
 |  [join(paths)](./inline-fixture-files.createiffresult.join.md) | Join <code>rootDir</code> and <code>paths</code>. It is equivalent to <code>require('path').join(rootDir, ...paths)</code>. |
+|  [readFile(path)](./inline-fixture-files.createiffresult.readfile.md) | Read the file. |
 |  [reset()](./inline-fixture-files.createiffresult.reset.md) | Delete the fixture root directory and write the fixtures specified in <code>directory</code> argument again. |
 |  [rmFixtures()](./inline-fixture-files.createiffresult.rmfixtures.md) | Delete files under the fixture root directory. |
 |  [rmRootDir()](./inline-fixture-files.createiffresult.rmrootdir.md) | Delete the fixture root directory. |

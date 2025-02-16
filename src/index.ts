@@ -3,7 +3,7 @@
  * The utility for writing fixture files inline.
  */
 
-import { constants, cp, readdir, rm } from 'node:fs/promises';
+import { constants, cp, readdir, readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Directory, MergeDirectory } from './create-iff-impl.js';
 import { createIFFImpl } from './create-iff-impl.js';
@@ -136,6 +136,12 @@ export interface CreateIFFResult<T extends Directory> {
    */
   join(...paths: string[]): string;
   /**
+   * Read the file.
+   * @param path - The path to the file.
+   * @returns The content of the file.
+   */
+  readFile(path: string): Promise<string>;
+  /**
    * Delete the fixture root directory.
    */
   rmRootDir(): Promise<void>;
@@ -262,6 +268,9 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
       paths,
       join(...paths) {
         return unixStylePath ? slash(join(rootDir, ...paths)) : join(rootDir, ...paths);
+      },
+      readFile: async (path) => {
+        return await readFile(join(rootDir, path), 'utf-8');
       },
       async rmRootDir() {
         await rm(rootDir, { recursive: true, force: true });
