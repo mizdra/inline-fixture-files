@@ -211,8 +211,8 @@ describe('CreateIFFResult', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       iff.paths['b/b.txt'];
     });
-    test.runIf(process.platform === 'win32')('useUnixPathSeparator', async () => {
-      const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir, useUnixPathSeparator: true });
+    test.runIf(process.platform === 'win32')('unixStylePath', async () => {
+      const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir, unixStylePath: true });
       const iff = await createIFF({
         'a.txt': 'a',
         'b': {
@@ -234,8 +234,8 @@ describe('CreateIFFResult', () => {
       expect(iff.join('nonexistent-file.txt')).toBe(join(fixtureDir, 'nonexistent-file.txt'));
       expect(iff.join('')).toBe(fixtureDir);
     });
-    test.runIf(process.platform === 'win32')('useUnixPathSeparator', async () => {
-      const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir, useUnixPathSeparator: true });
+    test.runIf(process.platform === 'win32')('unixStylePath', async () => {
+      const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir, unixStylePath: true });
       const iff = await createIFF({});
       expect(iff.join('a.txt')).toBe(slash(join(fixtureDir, 'a.txt')));
     });

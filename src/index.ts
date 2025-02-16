@@ -41,7 +41,7 @@ export interface DefineIFFCreatorOptions {
    */
   generateRootDir(): string;
   /** Use unix-style path separator (`/`) for paths on windows. */
-  useUnixPathSeparator?: boolean | undefined;
+  unixStylePath?: boolean | undefined;
 }
 
 /**
@@ -251,17 +251,17 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
     __INTERNAL__prevIFF?: CreateIFFResult<U>,
   ): Promise<CreateIFFResult<MergeDirectory<U, T>>> {
     const rootDir = options?.overrideRootDir ?? defineIFFCreatorOptions.generateRootDir();
-    const useUnixPathSeparator = defineIFFCreatorOptions.useUnixPathSeparator ?? false;
+    const unixStylePath = defineIFFCreatorOptions.unixStylePath ?? false;
     const paths = {
-      ...changeRootDirOfPaths(__INTERNAL__prevIFF?.paths ?? ({} as FlattenDirectory<U>), rootDir, useUnixPathSeparator),
-      ...getPaths(directory, rootDir, useUnixPathSeparator),
+      ...changeRootDirOfPaths(__INTERNAL__prevIFF?.paths ?? ({} as FlattenDirectory<U>), rootDir, unixStylePath),
+      ...getPaths(directory, rootDir, unixStylePath),
     } as FlattenDirectory<MergeDirectory<U, T>>;
 
     const iff: CreateIFFResult<MergeDirectory<U, T>> = {
       rootDir,
       paths,
       join(...paths) {
-        return useUnixPathSeparator ? slash(join(rootDir, ...paths)) : join(rootDir, ...paths);
+        return unixStylePath ? slash(join(rootDir, ...paths)) : join(rootDir, ...paths);
       },
       async rmRootDir() {
         await rm(rootDir, { recursive: true, force: true });

@@ -46,7 +46,7 @@ export function getSelfAndUpperPaths(path: string): string[] {
 export function getPaths<T extends Directory>(
   directory: T,
   rootDir: string,
-  useUnixPathSeparator: boolean,
+  unixStylePath: boolean,
   prefix = '',
 ): FlattenDirectory<T> {
   let paths: Record<string, string> = {};
@@ -61,7 +61,7 @@ export function getPaths<T extends Directory>(
       // NOTE: Use `Object.defineProperty(obj, prop, { value })` instead of `obj[prop] = value` to allow `paths['__proto__']`.
       // ref: https://2ality.com/2015/09/proto-es6.html#defining-__proto__
       Object.defineProperty(paths, joinForPosix(prefix, n), {
-        value: useUnixPathSeparator ? slash(join(rootDir, prefix, n)) : join(rootDir, prefix, n),
+        value: unixStylePath ? slash(join(rootDir, prefix, n)) : join(rootDir, prefix, n),
         enumerable: true,
         writable: true,
         configurable: true,
@@ -69,7 +69,7 @@ export function getPaths<T extends Directory>(
     }
 
     if (isDirectory(item)) {
-      const newPaths = getPaths(item, rootDir, useUnixPathSeparator, joinForPosix(prefix, name));
+      const newPaths = getPaths(item, rootDir, unixStylePath, joinForPosix(prefix, name));
       paths = { ...paths, ...newPaths };
     }
   }
@@ -79,11 +79,11 @@ export function getPaths<T extends Directory>(
 export function changeRootDirOfPaths<T extends FlattenDirectory<Directory>>(
   paths: T,
   newRootDir: string,
-  useUnixPathSeparator: boolean,
+  unixStylePath: boolean,
 ): T {
   const newPaths: Record<string, string> = {};
   for (const key of Object.keys(paths)) {
-    newPaths[key] = useUnixPathSeparator ? slash(join(newRootDir, key)) : join(newRootDir, key);
+    newPaths[key] = unixStylePath ? slash(join(newRootDir, key)) : join(newRootDir, key);
   }
   return newPaths as unknown as T;
 }
