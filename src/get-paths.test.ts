@@ -201,31 +201,30 @@ describe('getPaths', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['a.txt'];
   });
-});
-
-test('allow function and null as items', () => {
-  const paths = getPaths(
-    {
-      'a.txt': null,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'b.txt': () => {},
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'c.txt': async () => {},
-    },
-    fixtureDir,
-    false,
-  );
-  expect(paths).toStrictEqual({
-    'a.txt': join(fixtureDir, 'a.txt'),
-    'b.txt': join(fixtureDir, 'b.txt'),
-    'c.txt': join(fixtureDir, 'c.txt'),
+  test('allow function and null as items', () => {
+    const paths = getPaths(
+      {
+        'a.txt': null,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'b.txt': () => {},
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'c.txt': async () => {},
+      },
+      fixtureDir,
+      false,
+    );
+    expect(paths).toStrictEqual({
+      'a.txt': join(fixtureDir, 'a.txt'),
+      'b.txt': join(fixtureDir, 'b.txt'),
+      'c.txt': join(fixtureDir, 'c.txt'),
+    });
+    expectType<{
+      'a.txt': string;
+      'b.txt': string;
+      'c.txt': string;
+    }>(paths);
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    paths['d.txt'];
   });
-  expectType<{
-    'a.txt': string;
-    'b.txt': string;
-    'c.txt': string;
-  }>(paths);
-  // @ts-expect-error
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  paths['d.txt'];
 });
