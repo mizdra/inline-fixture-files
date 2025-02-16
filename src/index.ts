@@ -264,7 +264,7 @@ export function defineIFFCreator(defineIFFCreatorOptions: DefineIFFCreatorOption
     } as FlattenDirectory<MergeDirectory<U, T>>;
 
     const iff: CreateIFFResult<MergeDirectory<U, T>> = {
-      rootDir,
+      rootDir: unixStylePath ? slash(rootDir) : rootDir,
       paths,
       join(...paths) {
         return unixStylePath ? slash(join(rootDir, ...paths)) : join(rootDir, ...paths);
