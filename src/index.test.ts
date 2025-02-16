@@ -184,10 +184,17 @@ describe('createIFF', () => {
 
 describe('CreateIFFResult', () => {
   const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir });
-  test('rootDir', async () => {
-    const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, 'a') });
-    const iff = await createIFF({});
-    expect(iff.rootDir).toBe(join(fixtureDir, 'a'));
+  describe('rootDir', () => {
+    test('basic', async () => {
+      const createIFF = defineIFFCreator({ generateRootDir: () => join(fixtureDir, 'a') });
+      const iff = await createIFF({});
+      expect(iff.rootDir).toBe(join(fixtureDir, 'a'));
+    });
+    test('unixStylePath', async () => {
+      const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir, unixStylePath: true });
+      const iff = await createIFF({});
+      expect(iff.rootDir).toBe(slash(fixtureDir));
+    });
   });
   describe('paths', () => {
     test('basic', async () => {
