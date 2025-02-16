@@ -2,7 +2,7 @@ import { utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { describe, expect, test } from 'vitest';
-import { getPaths, getSelfAndUpperPaths } from './get-paths.js';
+import { getPaths, getSelfAndUpperPaths, slash } from './get-paths.js';
 import { fixtureDir } from './test/util.js';
 
 test('getSelfAndUpperPaths', () => {
@@ -226,5 +226,22 @@ describe('getPaths', () => {
     // @ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     paths['d.txt'];
+  });
+  test.runIf(process.platform === 'win32')('convert windows path separator to unix path separator', () => {
+    const paths = getPaths(
+      {
+        'a.txt': 'a',
+        'b': {
+          'a.txt': 'b-a',
+        },
+      },
+      fixtureDir,
+      true,
+    );
+    expect(paths).toStrictEqual({
+      'a.txt': slash(join(fixtureDir, 'a.txt')),
+      'b': slash(join(fixtureDir, 'b')),
+      'b/a.txt': slash(join(fixtureDir, 'b/a.txt')),
+    });
   });
 });

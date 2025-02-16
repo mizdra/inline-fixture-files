@@ -2,6 +2,7 @@ import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expectType } from 'ts-expect';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { slash } from './get-paths.js';
 import { defineIFFCreator } from './index.js';
 import { exists, fixtureDir } from './test/util.js';
 
@@ -188,12 +189,56 @@ describe('CreateIFFResult', () => {
     const iff = await createIFF({});
     expect(iff.rootDir).toBe(join(fixtureDir, 'a'));
   });
-  test('join', async () => {
-    const iff = await createIFF({ 'a.txt': 'a' });
-    expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
-    expect(iff.join('/a.txt')).toBe(join(fixtureDir, 'a.txt'));
-    expect(iff.join('nonexistent-file.txt')).toBe(join(fixtureDir, 'nonexistent-file.txt'));
-    expect(iff.join('')).toBe(fixtureDir);
+  describe('paths', () => {
+    test('basic', async () => {
+      const iff = await createIFF({
+        'a.txt': 'a',
+        'b': {
+          'a.txt': 'b-a',
+        },
+      });
+      expect(iff.paths).toStrictEqual({
+        'a.txt': join(fixtureDir, 'a.txt'),
+        'b': join(fixtureDir, 'b'),
+        'b/a.txt': join(fixtureDir, 'b/a.txt'),
+      });
+      expectType<{
+        'a.txt': string;
+        'b': string;
+        'b/a.txt': string;
+      }>(iff.paths);
+      // @ts-expect-error
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      iff.paths['b/b.txt'];
+    });
+    test.runIf(process.platform === 'win32')('useUnixPathSeparator', async () => {
+      const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir, useUnixPathSeparator: true });
+      const iff = await createIFF({
+        'a.txt': 'a',
+        'b': {
+          'a.txt': 'b-a',
+        },
+      });
+      expect(iff.paths).toStrictEqual({
+        'a.txt': slash(join(fixtureDir, 'a.txt')),
+        'b': slash(join(fixtureDir, 'b')),
+        'b/a.txt': slash(join(fixtureDir, 'b/a.txt')),
+      });
+    });
+  });
+  describe('join', () => {
+    test('basic', async () => {
+      const iff = await createIFF({ 'a.txt': 'a' });
+      expect(iff.join('a.txt')).toBe(join(fixtureDir, 'a.txt'));
+      expect(iff.join('/a.txt')).toBe(join(fixtureDir, 'a.txt'));
+      expect(iff.join('nonexistent-file.txt')).toBe(join(fixtureDir, 'nonexistent-file.txt'));
+      expect(iff.join('')).toBe(fixtureDir);
+    });
+    test.runIf(process.platform === 'win32')('useUnixPathSeparator', async () => {
+      const createIFF = defineIFFCreator({ generateRootDir: () => fixtureDir, useUnixPathSeparator: true });
+      const iff = await createIFF({});
+      expect(iff.join('a.txt')).toBe(slash(join(fixtureDir, 'a.txt')));
+    });
   });
   test('rmFixtures', async () => {
     const iff = await createIFF({
